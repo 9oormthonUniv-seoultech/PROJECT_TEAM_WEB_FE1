@@ -1,0 +1,29 @@
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #E9EAEE;
+    border-radius: 8px;
+    margin-top: 17px;
+    margin-left: 24px;
+    height: 44px;
+}
+
+.search-input {
+    flex  :1;
+    margin-left:15px;
+    border: none;
+    outline: none;
+    background-color: #E9EAEE;
+}
+
+.search-button {
+    width : 55px;
+    cursor: pointer;
+    border: none;
+    background: none; /* 배경 제거 */
+}
+
+.search-input::placeholder {
+    color: #A1A6B5;
+}

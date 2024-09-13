@@ -36,3 +36,13 @@
     transform: rotate(360deg);
   }
 }
+
+
+.app-container {
+  width: 390px; /* 고정된 가로 크기 */
+  height: 844px; /* 고정된 세로 크기 */
+  margin: 0 auto; /* 중앙 정렬 */
+  position: relative; /* 자식 요소가 이 컨테이너 내에서 위치를 고정하도록 설정 */
+  border: 1px solid #ccc; /* 선택 사항: 화면 경계를 보기 쉽게 */
+  background-color: #fff;
+}
