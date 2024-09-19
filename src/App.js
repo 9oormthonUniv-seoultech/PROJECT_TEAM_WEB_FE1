@@ -5,6 +5,7 @@ import Logo from './components/js/Logo';
 import HomePage from './pages/HomePage';
 import AlbumPage from './pages/AlbumPage';
 import MyPage from './pages/MyPage';
+import AddPhoto from './pages/AddPhotoPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/Home" element={<HomePage />} />
           <Route path="/Album" element={<AlbumPage />} />
           <Route path="/My" element={<MyPage />} />
+          <Route path="/AddPhoto" element={<AddPhoto />} />
         </Routes>
       </Router>
     </div>

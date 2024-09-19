@@ -4,9 +4,7 @@
     justify-content: space-between;
     background: #E9EAEE;
     border-radius: 8px;
-    margin-top: 17px;
-    margin-left: 24px;
-    height: 44px;
+   
 }
 
 .search-input {
@@ -14,7 +12,7 @@
     margin-left:15px;
     border: none;
     outline: none;
-    background-color: #E9EAEE;
+    background-color: transparent;
 }
 
 .search-button {

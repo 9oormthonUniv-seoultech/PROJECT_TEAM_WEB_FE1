@@ -19,29 +19,73 @@ function AlbumPage() {
   };
 
   return (
-    <div>
+    <div style={{
+      width: '100%',  // App.css에서 설정한 width에 맞추기
+      height: '100%', // App.css에서 설정한 height에 맞추기
+      position: 'relative',
+    }}>
       <Navbar />
+
+      <div 
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          position: 'relative',
+          top: '50px', // Navbar와 KakaoMap 사이의 간격 조절
+        }}
+      >
 
       <SearchBar 
         placeholder="#민지를 통해 민지와 함께 찍은 사진 보기" 
         icon={searchIcon} 
         onSearch={handleSearch} 
         width="341px"
+        height="44px"
       />
 
-<Button 
+      <div 
+        className="buttonGroup" 
+        style={{
+          display: 'flex',
+          width : '100%',
+          marginTop : "17px",
+          marginLeft : "16px"
+        }}
+      >
+        <div style={{ position: 'relative', marginRight: '8px' }}> 
+          {/* 말풍선 텍스트 추가할 버튼 감싸기 */}
+          <Button 
             text="2024년 8월" 
-            onClick={handleClick} 
+            onClick={() => handleClick('august2024')} 
             backgroundColor="#5453EE" 
             borderRadius="30px" 
-            width = "114px"
-            height = "33px"
-            boxShadow = "3px 3px 10px rgba(0, 0, 0, 0.25)"
-            color = "#ffffff"
-            fontSize = "16px"
-            marginTop= "17px"
-            marginLeft = "16px"
-        />
+            width="114px"
+            height="33px"
+            boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)"
+            color="#ffffff"
+            fontSize="16px"
+            marginRight="8px"
+          />
+          {/* 말풍선 텍스트 */}
+          {selectedButton === 'august2024' && (
+            <div className="tooltip" style={{
+              position: 'absolute',
+              top: '-35px', // 버튼 위에 위치하도록 설정
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#5453EE',
+              color: '#ffffff',
+              padding: '5px 10px',
+              borderRadius: '8px',
+              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+            }}>
+              말풍선 텍스트 예시
+            </div>
+          )}
+        </div>
 
         <Button 
             text="선택" 
@@ -68,15 +112,16 @@ function AlbumPage() {
             fontSize = "14px"
             marginLeft = "8px"
         />
+      </div>
 
 
 
-      <EmptyIcon style={{ marginTop: '121px', marginLeft: '94px' }} />
+      <EmptyIcon style={{ marginTop: '121px' }} />
       <Text 
         fontSize="18px" 
         color="#676F7B" 
         textAlign="center"
-        fontWeight="600"
+        fontWeight="500"
         marginTop="23px"
       >
         사진을 채워보세요
@@ -88,11 +133,11 @@ function AlbumPage() {
         style={{
           display: 'flex',
           marginTop: '124px',
-          marginLeft: '51px',
           borderRadius: '30px',
           width : '288px',
           height : '42px',
           backgroundColor : "#C7C9CE",
+          opacity : '80%',
           boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)', // 전체 그룹에 그림자 적용
         }}
       >
@@ -104,6 +149,7 @@ function AlbumPage() {
           color={selectedButton === 'date' ? "#ffffff" : "#4B515A"}
           fontSize="16px"
           padding  = "11px 18px"
+          boxShadow= "none"
         />
 
         <Button 
@@ -114,6 +160,7 @@ function AlbumPage() {
           color={selectedButton === 'photobooth' ? "#ffffff" : "#4B515A"}
           fontSize="16px"
           padding  = "11px 19px"
+          boxShadow= "none"
         />
 
         <Button 
@@ -124,9 +171,11 @@ function AlbumPage() {
           color={selectedButton === 'location' ? "#ffffff" : "#4B515A"}
           fontSize="16px"
           padding  = "11px 18px"
+          boxShadow= "none"
         />
       </div>
     </div>
+  </div>
   );
 }
 
