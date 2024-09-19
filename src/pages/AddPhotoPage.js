@@ -3,38 +3,55 @@ import HeaderBar from '../components/js/HeaderBar';
 import Button from '../components/js/Button';
 import circleIcon from '../assets/circle-icon.svg';
 import clickedCircleIcon from '../assets/clicked-circle-icon.svg';
+import OverlayQrReader from '../components/js/OverlayQrReader';
+import LoadingOverlay from '../components/js/LoadingOverlay'; // 로딩 오버레이 컴포넌트 가져오기
 
 function AddPhotoPage() {
-  const [clickedButton, setClickedButton] = useState(null); // 클릭된 버튼 ID를 관리
+  const [showQrOverlay, setShowQrOverlay] = useState(false); // QR 오버레이 표시 상태 관리
+  const [selectedOption, setSelectedOption] = useState('');
+  const [loading, setLoading] = useState(false); // 로딩 상태 관리
+  const [loadingId, setLoadingId] = useState(''); // 로딩 아이디 상태 관리
 
-  const handleClick = (buttonId) => {
-    setClickedButton(buttonId); // 클릭된 버튼 ID를 상태로 설정
+  const handleNextClick = () => {
+    if (selectedOption === 'qr') {
+      setShowQrOverlay(true);
+    } else if (selectedOption === 'album') {
+      setLoadingId('download'); // 'download' ID로 로딩 설정
+      setLoading(true); // 로딩 화면 표시
+      // 앨범 로직 추가
+      setTimeout(() => {
+        setLoading(false); // 로딩 화면 숨김
+        alert('앨범 불러오기 완료'); // 예제 로직, 실제로는 다른 처리 로직
+      }, 3000); // 3초 후 로딩 숨김
+    }
   };
 
-  // 클릭되었을 때의 색상
-  const getBackgroundColor = (buttonId) => {
-    return clickedButton === buttonId ? '#E1E0FF' : '#FFFFFF';
+  const handleQrClick = () => {
+    setSelectedOption('qr');
   };
 
-  const getTextColor = (buttonId) => {
-    return clickedButton === buttonId ? '#5453EE' : '#C7C9CE';
+  const handleAlbumClick = () => {
+    setSelectedOption('album');
   };
 
-  // 클릭되었을 때의 테두리 색상
-  const getBorder = (buttonId) => {
-    return clickedButton === buttonId ? '1px solid #5453EE' : '1px solid #C7C9CE';
+  const closeOverlay = () => {
+    setShowQrOverlay(false);
   };
 
-  // 클릭되었을 때의 아이콘
-  const getIcon = (buttonId) => {
-    return clickedButton === buttonId ? clickedCircleIcon : circleIcon;
+  const handleConfirm = () => {
+    setShowQrOverlay(false);
+    setLoadingId('upload'); // 'upload' ID로 로딩 설정
+    setLoading(true); // 로딩 화면 표시
+    // 여기에 원하는 로직 추가 가능
+    setTimeout(() => {
+      setLoading(false); // 로딩 화면 숨김
+    }, 3000); // 3초 후 로딩 숨김
   };
-
 
   return (
     <div style={{
-      width: '100%',  // App.css에서 설정한 width에 맞추기
-      height: '100%', // App.css에서 설정한 height에 맞추기
+      width: '100%', 
+      height: '100%', 
       position: 'relative',
     }}>
       <HeaderBar title="사진 등록" showBackButton={false} showCloseButton={true} />
@@ -50,63 +67,54 @@ function AddPhotoPage() {
       >
         <Button 
             text="QR 인식" 
-            backgroundColor={getBackgroundColor('qr')} // 클릭 시 배경 색상 변경
+            onClick={handleQrClick}
             borderRadius= "8px"
             width="267px"
             height="90px"
-            color={getTextColor('qr')} // 클릭 시 텍스트 색상 변경
+            backgroundColor={selectedOption === 'qr' ? "#E1E0FF" : "transparent"}
+            color={selectedOption === 'qr' ? "#5453EE" : "#C7C9CE"} // 선택된 옵션에 따라 색상 변경
             fontSize="16px"
             position="relative"
-            icon={getIcon('qr')} // 클릭 시 아이콘 변경
+            icon= {selectedOption === 'qr' ? clickedCircleIcon : circleIcon}
             iconMargin="12px" 
-            boxShadow = "none"
-            border={getBorder('qr')} // 클릭 시 테두리 변경
-            onClick={() => handleClick('qr')} // 버튼 클릭 시 handleClick 호출
+            boxShadow="none"
+            border= {selectedOption === 'qr' ? "1px solid #5453EE"  : "1px solid #C7C9CE"}
           />
 
           <Button 
             text="내 사진첩 불러오기" 
-            backgroundColor={getBackgroundColor('album')} // 클릭 시 배경 색상 변경
+            onClick={handleAlbumClick}
             borderRadius= "8px"
             width="267px"
             height="90px"
-            color={getTextColor('album')} // 클릭 시 텍스트 색상 변경
+            backgroundColor={selectedOption === 'album' ? "#E1E0FF" : "transparent"}
+            color={selectedOption === 'album' ? "#5453EE" : "#C7C9CE"} // 선택된 옵션에 따라 색상 변경
             fontSize="16px"
             position="relative"
-            icon={getIcon('album')} // 클릭 시 아이콘 변경
+            icon= {selectedOption === 'album' ? clickedCircleIcon : circleIcon}
             iconMargin="12px" 
-            boxShadow = "none"
-            border={getBorder('album')} // 클릭 시 테두리 변경
+            boxShadow="none"
+            border={selectedOption === 'album' ? "1px solid #5453EE"  : "1px solid #C7C9CE"}
             marginTop="22px"
-            onClick={() => handleClick('album')} // 버튼 클릭 시 handleClick 호출
+          />
+
+          <Button 
+            text="다음"
+            onClick={handleNextClick} // '다음' 버튼 클릭 시 처리
+            backgroundColor="#5453EE"
+            borderRadius="8px"
+            width="267px"
+            height="50px"
+            color="#FFFFFF"
+            fontSize="22px"
+            fontWeight = "500"
+            marginTop="126px"
+
           />
       </div>
 
-      {/* 다음 버튼 */}
-      {clickedButton && (
-        <div 
-          style={{
-            position: 'absolute',
-            bottom: '122px', // 화면 하단에 위치하도록 설정
-            left: '50%',
-            transform: 'translateX(-50%)', // 중앙 정렬
-            zIndex: '10'
-          }}
-        >
-          <Button 
-            text="다음" 
-            backgroundColor="#5453EE" // '다음' 버튼의 배경색
-            borderRadius="8px"
-            width="280px"
-            height="62px"
-            color="#FFFFFF" // '다음' 버튼의 텍스트 색상
-            fontSize="22px"
-            fontWeight = "500"
-            boxShadow= "none"
-            onClick={() => console.log('다음 버튼 클릭')}
-          />
-        </div>
-      )}
+      {showQrOverlay && <OverlayQrReader onClose={closeOverlay} onConfirm={handleConfirm} />} {/* QR 오버레이 표시 */}
+      {loading && <LoadingOverlay id={loadingId} />} {/* 로딩 오버레이에 id를 전달 */}
     </div>
   );
 }
