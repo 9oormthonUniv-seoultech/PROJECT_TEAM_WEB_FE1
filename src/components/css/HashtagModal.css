@@ -1,0 +1,62 @@
+/* HashtagModal.css */
+.modal-overlay {
+    position: absolute; /* 부모 컨테이너 기준으로 절대 위치 */
+    top: 0; /* 부모 컨테이너의 아래에서 시작 */
+    left: 0;
+    width: 100%; /* 부모 컨테이너의 너비 */
+    height: 100%; /* 부모 컨테이너의 높이 */
+    background: rgba(0, 0, 0, 0.5); /* 배경을 어둡게 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* 모달을 아래에서 올라오게 설정 */
+    z-index: 20; /* 부모보다 높은 z-index */
+  }
+  
+  .modal-container {
+    position: relative; 
+    width: 100%;
+    max-width: 400px; /* 모달 최대 너비 */
+    height: 363px;
+    background: #fff;
+    border-radius: 26px 26px 0 0; /* 모서리를 둥글게 */
+    padding: 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    animation: slide-up 0.3s ease-out; /* 슬라이드 업 애니메이션 */
+    display: flex; /* 플렉스 박스 설정 */
+    flex-direction: column; /* 아이템들을 수직 정렬 */
+    align-items: center; /* 아이템들을 수평 가운데 정렬 */
+  }
+
+  .close-button {
+    position: absolute;
+    top: 24px; /* 모달 내부 상단 여백 */
+    right: 16px; /* 모달 내부 우측 여백 */
+    background: none; /* 버튼 배경 제거 */
+    border: none; /* 버튼 테두리 제거 */
+    cursor: pointer; /* 마우스 커서 변경 */
+  }
+  
+  .close-icon {
+    width: 22px; /* 아이콘 크기 */
+    height: 22px;
+  }
+  
+  .hashtag-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+
+  /* 슬라이드 업 애니메이션 */
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  

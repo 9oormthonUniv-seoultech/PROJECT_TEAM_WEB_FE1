@@ -6,6 +6,8 @@ import HomePage from './pages/HomePage';
 import AlbumPage from './pages/AlbumPage';
 import MyPage from './pages/MyPage';
 import AddPhoto from './pages/AddPhotoPage';
+import NotePhoto from './pages/NotePhotoPage';
+import ShareSuccess from  './pages/ShareSuccessPage';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/Album" element={<AlbumPage />} />
           <Route path="/My" element={<MyPage />} />
           <Route path="/AddPhoto" element={<AddPhoto />} />
+          <Route path="/NotePhoto" element={<NotePhoto />} />
+          <Route path="/ShareSuccess" element={<ShareSuccess />} />
         </Routes>
       </Router>
     </div>

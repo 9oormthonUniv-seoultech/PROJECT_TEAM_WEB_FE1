@@ -17,11 +17,11 @@
   font-size: 16px;
   cursor: pointer;
   padding: 10px;
-  color: #333;
+  color: #171D24;
 }
 
 .back-button {
-  left: 10px; /* 왼쪽에 배치 */
+  left: 16px; /* 왼쪽에 배치 */
 }
 
 .close-button {

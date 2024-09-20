@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../css/Logo.css'; // 스타일링 파일
 import LogoText from './LogoText'; 
+import { useNavigate } from 'react-router-dom';
 
 function Logo() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 3초 후에 /home으로 리다이렉트
+    const timer = setTimeout(() => {
+      navigate('/Home');
+    }, 3000);
+
+    // 컴포넌트가 언마운트될 때 타이머 클리어
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   return (
     <div className="logo-with-text-container">
         {/* 로고 이미지 */}

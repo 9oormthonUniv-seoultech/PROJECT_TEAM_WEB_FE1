@@ -1,0 +1,5 @@
+.input::placeholder {
+    color: #C7C9CE; /* 기본 placeholder 색상 */
+    font-weight: 600;
+    font-size: 16px;
+  }
