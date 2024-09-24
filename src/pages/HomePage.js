@@ -111,6 +111,7 @@ function HomePage() {
           marginTop="509px" // 이전에 사용한 marginTop 값을 조정
           icon={addIcon} 
           iconMargin="15px" 
+          iconPosition="left" 
         />
       </div>
 

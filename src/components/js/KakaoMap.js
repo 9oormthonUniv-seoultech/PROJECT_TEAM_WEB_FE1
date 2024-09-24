@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Map, MapMarker } from 'react-kakao-maps-sdk';
-import CustomMarker from './CustomMarker';
-import ReactDOMServer from 'react-dom/server';
+import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk'; // CustomOverlayMap 사용
+import CustomMarkerOverlay from './CustomMarkerOverlay'; // CustomMarkerOverlay 컴포넌트 이름 변경 확인
 
 const KakaoMap = () => {
   const [userLocation, setUserLocation] = useState(null);
-  const [locations, setLocations] = useState([
+  const [locations] = useState([ // setLocations는 사용되지 않으므로 제거
     {
       lat: 37.632411,
       lng: 127.076413,
       content: '하루 필름',
-      imageUrl: 'https://pbs.twimg.com/profile_images/1712345166403809280/lkyzN9yJ_400x400.jpg',
+      imageUrl: process.env.PUBLIC_URL + '/images/harufilm.png',
     },
     {
       lat: 37.634939,
       lng: 127.076313,
       content: '포토이즘',
-      imageUrl: 'https://cdn.imweb.me/thumbnail/20200629/f08d9f7ab104b.png',
+      imageUrl: process.env.PUBLIC_URL + '/images/photoism.png',
     },
   ]);
 
@@ -42,41 +41,23 @@ const KakaoMap = () => {
     }
   }, []);
 
-  // CustomMarker를 Base64로 변환하여 이미지로 사용
-  const getMarkerImage = (imageUrl) => {
-    const svgString = ReactDOMServer.renderToStaticMarkup(
-      <CustomMarker imageUrl={imageUrl} /> // 전달받은 imageUrl로 CustomMarker 생성
-    );
-    const encoded = btoa(svgString); // Base64 인코딩
-    return `data:image/svg+xml;base64,${encoded}`; // data URL 형태로 반환
-  };
-
   return (
     <Map
       center={userLocation || { lat: 33.450701, lng: 126.570667 }}
       style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
       level={4}
     >
-      {userLocation && (
-        <MapMarker position={userLocation}>
-         
-        </MapMarker>
-      )}
-
       {locations.map((location, index) => (
-        <MapMarker
+        <CustomOverlayMap
           key={index}
-          position={{ lat: location.lat, lng: location.lng }}
-          image={{
-            src: getMarkerImage(location.imageUrl), // CustomMarker의 Base64 이미지 사용
-            size: {
-              width: 64,
-              height: 70,
-            },
-            options: {
-              offset: { x: 27, y: 69 },
-            },
-          }}
+          position={{ lat: location.lat, lng: location.lng }} // 오버레이의 위치 설정
+          yAnchor={1} // 오버레이가 위치할 수직 기준점
+          content={(
+            <CustomMarkerOverlay 
+              imageUrl={location.imageUrl} 
+              text={location.content} 
+            />
+          )} // CustomMarkerOverlay 컴포넌트를 content로 전달
         />
       ))}
     </Map>
