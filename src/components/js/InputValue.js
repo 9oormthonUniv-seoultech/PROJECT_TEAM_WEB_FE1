@@ -16,8 +16,24 @@ const InputValue = ({
   marginTop,
   marginLeft,
   textAlign,
-  padding
+  padding,
+  placeholderPosition = 'center' // placeholderPosition prop 추가, 기본값은 'center'
 }) => {
+  // placeholder 위치를 설정하는 동적 스타일
+  const getPlaceholderStyle = () => {
+    if (placeholderPosition === 'top-left') {
+      return {
+        textAlign: 'left',
+        paddingTop: '16px', // 위쪽 여백 추가
+        paddingLeft: '16px', // 왼쪽 여백 추가
+      };
+    }
+    return {
+      textAlign: textAlign || 'center',
+      padding: padding,
+    };
+  };
+
   const inputStyle = {
     width: width,
     height: height || '35.05px',
@@ -26,12 +42,11 @@ const InputValue = ({
     backgroundColor: backgroundColor || '#E9EAEE',
     borderRadius: borderRadius || '6.68px',
     marginTop: marginTop || '0',
-    marginLeft : marginLeft,
+    marginLeft: marginLeft,
     border: border || 'none',
     outline: 'none',
     boxSizing: 'border-box',
-    textAlign: textAlign || 'center',
-    padding: padding,
+    ...getPlaceholderStyle() // placeholder 스타일 병합
   };
 
   return (

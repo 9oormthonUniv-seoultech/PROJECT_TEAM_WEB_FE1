@@ -1,12 +1,33 @@
 import React from 'react';
 import '../css/Button.css'; // 기본 스타일
 
-function Button({ text, onClick, backgroundColor, border, borderRadius, width, height, fontSize, color, 
-  boxShadow, marginTop, marginLeft, padding , position, bottom, left, transform , zIndex, icon, iconMargin }) {
+function Button({ 
+  text, 
+  onClick, 
+  backgroundColor, 
+  border, 
+  borderRadius, 
+  width, 
+  height, 
+  fontSize, 
+  color, 
+  boxShadow, 
+  marginTop, 
+  marginLeft, 
+  padding, 
+  position, 
+  bottom, 
+  left, 
+  transform, 
+  zIndex, 
+  icon, 
+  iconMargin, 
+  iconPosition // 아이콘 위치를 지정하는 새로운 prop
+}) {
   const buttonStyle = {
-    backgroundColor: backgroundColor, 
-    border : border,
-    borderRadius :  borderRadius,
+    backgroundColor: backgroundColor,
+    border: border,
+    borderRadius: borderRadius,
     width: width,
     height: height,
     fontSize: fontSize,
@@ -19,15 +40,17 @@ function Button({ text, onClick, backgroundColor, border, borderRadius, width, h
     bottom: bottom,
     left: left,
     transform: transform,
-    zIndex : zIndex,
-    cursor : 'pointer',
-    display: 'flex', // 아이콘과 텍스트를 가로로 정렬
-    alignItems: 'center', // 아이콘과 텍스트를 세로로 정렬
-    justifyContent: 'center', // 아이콘과 텍스트를 중앙 정렬
+    zIndex: zIndex,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: iconPosition === 'top' ? 'column' : 'row', // 아이콘 위치에 따라 flex-direction 조정
   };
 
   const iconStyle = {
-    marginRight: iconMargin || '8px', // 아이콘과 텍스트 사이 간격
+    marginRight: iconPosition === 'left' ? (iconMargin || '8px') : '0', // 아이콘이 텍스트 왼쪽에 있을 때 간격
+    marginBottom: iconPosition === 'top' ? (iconMargin || '8px') : '0', // 아이콘이 텍스트 위에 있을 때 간격
   };
 
   return (

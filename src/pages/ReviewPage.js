@@ -1,10 +1,17 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/js/HeaderBar'; 
 import Text from '../components/js/Text'; 
 import Button from '../components/js/Button'; 
+import InputValue from '../components/js/InputValue'; 
 import StarIcon from '../components/js/StarIcon'; // StarIcon 컴포넌트 import
+import photoIcon from '../assets/photo-icon.svg';
+import nonPhotoIcon from '../assets/non-photo.svg';
+
 
 const ReviewPage = () => {
+  const navigate = useNavigate();
+
   const [rating, setRating] = useState(0);
   const [boothVisibleCount, setBoothVisibleCount] = useState(5); 
   const [photoVisibleCount, setPhotoVisibleCount] = useState(5);
@@ -68,6 +75,11 @@ const ReviewPage = () => {
   const handleNextClick = () => {
     setCurrentPage(2); // 다음 페이지로 변경
   };
+
+  const handleCompleteClick = () => {
+    navigate('/ReviewSuccess');
+  };
+  
 
   return (
     <div style={{ width: '100%', height: '100vh', overflowY: 'auto' }}>
@@ -304,82 +316,129 @@ const ReviewPage = () => {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            marginTop: '28px'
+            alignItems: 'flex-start', // 왼쪽 정렬
+            width: '100%', 
+            marginTop: '22px'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Text 
-                fontSize="18px" 
-                color="#171D24"
-                fontWeight="600" 
-              >
-                사진을 등록해주세요
-              </Text>
-              <Text 
-                fontSize="12px" 
-                color="#FFFFFF"
-                fontWeight="600" 
-                backgroundColor="#A1A6B5"
-                borderRadius="24px"
-                padding="6px 10px"
-              >
-                선택
-              </Text>
-            </div>
-          <Button 
-            text="사진 추가하기" 
-            backgroundColor="#F1F3F5"
-            borderRadius="8px"
-            width="280px"
-            height="50px"
-            color="#5453EE"
-            fontSize="16px"
-            fontWeight="500"
-            marginBottom="24px"
+          {/* '사진을 등록해주세요' 섹션 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '26px', marginLeft : '16px' }}>
+            <Text 
+              fontSize="18px" 
+              color="#171D24"
+              fontWeight="600" 
+            >
+              사진을 등록해주세요
+            </Text>
+            <Text 
+              fontSize="12px" 
+              color="#FFFFFF"
+              fontWeight="600" 
+              backgroundColor="#A1A6B5"
+              borderRadius="24px"
+              padding="6px 10px"
+            >
+              선택
+            </Text>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12.43px', marginLeft : '16px' }}>
+            <Button 
+
+              text="5/5" 
+              icon={photoIcon}
+              iconPosition="top" 
+              backgroundColor="#E9EAEE"
+              borderRadius="8px"
+              width="92px"
+              height="92px"
+              color="#676F7B"
+              fontSize="12px"
+              fontWeight="500"
+              boxShadow="none"
+            />
+            <img 
+              src={nonPhotoIcon} 
+              alt = "nonphoto"
+            />
+            <img 
+              src={nonPhotoIcon} 
+              alt = "nonphoto"
+            />
+            <img 
+              src={nonPhotoIcon} 
+              alt = "nonphoto"
+            />
+         
+          </div>
+
+          {/* '부스에 대한 설명을 작성해주세요' 섹션 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '56px', marginLeft : '16px' }}>
+            <Text 
+              fontSize="18px" 
+              color="#171D24"
+              fontWeight="600" 
+            >
+              부스에 대한 설명을 작성해주세요
+            </Text>
+            <Text 
+              fontSize="12px" 
+              color="#FFFFFF"
+              fontWeight="600" 
+              backgroundColor="#A1A6B5"
+              borderRadius="24px"
+              padding="6px 10px"
+            >
+              선택
+            </Text>
+          </div>
+
+          <InputValue
+            type="text"
+            width="358px"
+            height="235px"
+            placeholder="포토부스에 대한 설명을 적어주세요"
+            placeholderColor="#A1A6B5"
+            backgroundColor="#E9EAEE"
+            color="#2A303A"
+            marginTop="22px"
+            marginLeft="16px"
+            placeholderPosition="top-left" 
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Text 
-                fontSize="18px" 
-                color="#171D24"
-                fontWeight="600" 
-              >
-                부스에 대한 설명을 작성해주세요
-              </Text>
-              <Text 
-                fontSize="12px" 
-                color="#FFFFFF"
-                fontWeight="600" 
-                backgroundColor="#A1A6B5"
-                borderRadius="24px"
-                padding="6px 10px"
-              >
-                선택
-              </Text>
-            </div>
-          <textarea 
-            placeholder="부스에 대한 설명을 작성해주세요..." 
+
+          <Text 
+            fontSize="12px" 
+            color="#676F7B"
+            fontWeight="500"
+            marginTop="8px"
+            marginLeft="337px"
+          
+          >
+            0/300
+          </Text>
+
+          <div 
             style={{
-              width: '280px',
-              height: '120px',
-              borderRadius: '8px',
-              padding: '12px',
-              fontSize: '16px',
-              border: '1px solid #5453EE',
-              resize: 'none'
+              display: 'flex',
+              justifyContent: 'center', // 수평 중앙 정렬
+              width: '100%', 
             }}
-          />
-          <Button 
-            text="완료" 
-            backgroundColor="#5453EE"
-            borderRadius="8px"
-            width="280px"
-            height="62px"
-            color="#FFFFFF"
-            fontSize="22px"
-            fontWeight="500"
-            marginTop="32px"
-          />
+          >
+            <Button 
+              text="완료하기" 
+              backgroundColor="#5453EE"
+              borderRadius="8px"
+              width="280px"
+              height="62px"
+              color="#FFFFFF"
+              fontSize="22px"
+              fontWeight="500"
+              marginTop="32px"
+              boxShadow="none"
+              onClick={handleCompleteClick}
+            />
+          </div>
+
         </div>
       )}
       <div ref={pageEndRef} /> {/* 페이지 하단 참조 */}

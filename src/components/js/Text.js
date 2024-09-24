@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Text({ children, fontSize, color, fontWeight, textAlign, marginTop, marginBottom, borderRadius, backgroundColor, padding, icon, iconSize = '16px', iconMarginRight = '8px' }) {
+function Text({ children, fontSize, color, fontWeight, textAlign, marginTop, marginBottom,marginLeft, borderRadius, backgroundColor, padding, icon, iconSize = '16px', iconMarginRight = '8px' }) {
   const textStyle = {
     fontSize: fontSize, // 폰트 크기
     color: color, // 텍스트 색상
@@ -8,6 +8,7 @@ function Text({ children, fontSize, color, fontWeight, textAlign, marginTop, mar
     textAlign: textAlign, // 텍스트 정렬
     marginTop: marginTop, // 상단 마진
     marginBottom: marginBottom,
+    marginLeft: marginLeft,
     borderRadius : borderRadius,
     backgroundColor : backgroundColor,
     padding : padding,
