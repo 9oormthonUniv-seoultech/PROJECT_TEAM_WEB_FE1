@@ -11,7 +11,7 @@ import NotePhoto from './pages/NotePhotoPage';
 import ShareSuccess from  './pages/ShareSuccessPage';
 import Review from './pages/ReviewPage';
 import ReviewSuccess from  './pages/ReviewSuccessPage';
-
+import BoothReview from  './pages/BoothReviewPage';
 
 function App() {
   return (
@@ -28,6 +28,7 @@ function App() {
           <Route path="/ShareSuccess" element={<ShareSuccess />} />
           <Route path="/Review" element={<Review />} />
           <Route path="/ReviewSuccess" element={<ReviewSuccess />} />
+          <Route path="/BoothReview" element={<BoothReview />} />
         </Routes>
       </Router>
     </div>

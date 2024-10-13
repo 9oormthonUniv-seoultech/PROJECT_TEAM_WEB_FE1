@@ -5,7 +5,7 @@ function Button({
   text, 
   onClick, 
   backgroundColor, 
-  border, 
+  borderBottom,  // 아래쪽 테두리 설정을 위한 prop 추가
   borderRadius, 
   width, 
   height, 
@@ -13,7 +13,8 @@ function Button({
   color, 
   boxShadow, 
   marginTop, 
-  marginLeft, 
+  marginLeft,
+  marginRight, 
   padding, 
   position, 
   bottom, 
@@ -26,7 +27,6 @@ function Button({
 }) {
   const buttonStyle = {
     backgroundColor: backgroundColor,
-    border: border,
     borderRadius: borderRadius,
     width: width,
     height: height,
@@ -35,6 +35,7 @@ function Button({
     boxShadow: boxShadow,
     marginTop: marginTop,
     marginLeft: marginLeft,
+    marginRight: marginRight,
     padding: padding,
     position: position,
     bottom: bottom,
@@ -46,17 +47,19 @@ function Button({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: iconPosition === 'top' ? 'column' : 'row', // 아이콘 위치에 따라 flex-direction 조정
+    borderBottom: borderBottom,  // 아래쪽 테두리만 적용
   };
 
   const iconStyle = {
+    marginLeft: iconPosition === 'right' ? (iconMargin || '8px') : '0', // 아이콘이 텍스트 오른쪽에 있을 때 간격
     marginRight: iconPosition === 'left' ? (iconMargin || '8px') : '0', // 아이콘이 텍스트 왼쪽에 있을 때 간격
-    marginBottom: iconPosition === 'top' ? (iconMargin || '8px') : '0', // 아이콘이 텍스트 위에 있을 때 간격
   };
 
   return (
     <button onClick={onClick} style={buttonStyle} className="custom-button">
-      {icon && <img src={icon} alt="icon" style={iconStyle} />} {/* 아이콘이 존재하면 표시 */}
+      {iconPosition === 'left' && icon && <img src={icon} alt="icon" style={iconStyle} />} {/* 아이콘이 왼쪽에 있을 때 */}
       {text}
+      {iconPosition === 'right' && icon && <img src={icon} alt="icon" style={iconStyle} />} {/* 아이콘이 오른쪽에 있을 때 */}
     </button>
   );
 }

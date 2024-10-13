@@ -50,6 +50,11 @@ body {
   position: relative; /* 자식 요소가 이 컨테이너 내에서 위치를 고정하도록 설정 */
   border: 1px solid #ccc; /* 선택 사항: 화면 경계를 보기 쉽게 */
   background-color: #fff;
+  overflow-y:auto;
+}
+
+.app-container::-webkit-scrollbar {
+  display: none;
 }
 
 
@@ -65,5 +70,10 @@ body {
 }
 
 .scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari 스크롤바 숨기기 */
+}
+
+
+.scroll-container-y::-webkit-scrollbar {
   display: none; /* Chrome, Safari 스크롤바 숨기기 */
 }
