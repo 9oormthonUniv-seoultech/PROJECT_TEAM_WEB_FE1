@@ -1,11 +1,17 @@
 // BoothReviewPage.js
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import HeaderBar from '../components/js/HeaderBar'; // HeaderBar 컴포넌트 가져오기
 import { ReactComponent as HeartIcon } from '../assets/heart-icon.svg';
 import Button from '../components/js/Button';
 import Text from '../components/js/Text';
 import ReviewBar from '../components/js/ReviewBar';
 import ReviewList from '../components/js/ReviewList';
+import StarIcon from '../components/js/StarIcon';
+import OneStarIcon from '../assets/star-icon/one-star-icon.svg';
+import TwoStarIcon from '../assets/star-icon/two-star-icon.svg';
+import ThreeStarIcon from '../assets/star-icon/three-star-icon.svg';
+import FourStarIcon from '../assets/star-icon/four-star-icon.svg';
+import FiveStarIcon from '../assets/star-icon/five-star-icon.svg';
 import variousFrame from '../assets/booth-review/various-frame-icon.svg';
 import cleanBooth from '../assets/booth-review/clean-booth-icon.svg';
 import wideBooth from '../assets/booth-review/wide-booth-icon.svg';
@@ -21,6 +27,29 @@ const BoothReviewPage = () => {
   const boothName = '하루필름 강남점';
   const location = '서울특별시 강남구 역삼동 123-45';
   const distance = '345m';
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const imageSliderRef = useRef(null);
+
+  const totalSlides = 4; 
+
+  const handleScroll = () => {
+    const scrollPosition = imageSliderRef.current.scrollLeft;
+    const slideWidth = imageSliderRef.current.offsetWidth;
+    const newSlideIndex = Math.round(scrollPosition / slideWidth);
+    setCurrentSlide(newSlideIndex);
+  };
+
+  const handleIndicatorClick = (index) => {
+    const slideWidth = imageSliderRef.current.offsetWidth;
+    imageSliderRef.current.scrollTo({
+      left: slideWidth * index,
+      behavior: 'smooth',
+    });
+    setCurrentSlide(index);
+  };
+
+  
   const totalReview = '567';
   const reviews = [
     {
@@ -45,12 +74,15 @@ const BoothReviewPage = () => {
   ];
 
 
-
+  const [rating, setRating] = useState(0);
   const [selectedTab, setSelectedTab] = useState('home'); // 탭 상태 관리
 
   // 각 탭 클릭 핸들러
   const handleTabClick = (tab) => {
     setSelectedTab(tab); // 선택된 탭 설정
+  };
+  const handleStarClick = (index) => {
+    setRating(index);
   };
 
   return (
@@ -65,52 +97,56 @@ const BoothReviewPage = () => {
       />
 
       {/* 사진 슬라이드 */}
-      <div className="image-slider" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory' }}>
+      <div className="scroll-container" ref={imageSliderRef} style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory' }} onScroll={handleScroll}>
         {[1, 2, 3, 4].map((_, index) => (
-          <div 
+          <div
             key={index}
             className="slide"
-            style={{ minWidth: '100%', height: '300px', backgroundColor: '#f0f0f0', borderRadius: '10px', scrollSnapAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            style={{ minWidth: '100%', height: '300px', backgroundColor: '#f0f0f0', scrollSnapAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
           >
-            <img 
-              src={`https://via.placeholder.com/300x300?text=Image+${index + 1}`} 
+            <img
+              src={`https://via.placeholder.com/300x300?text=Image+${index + 1}`}
               alt={`슬라이드 이미지 ${index + 1}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
         ))}
       </div>
 
       {/* 슬라이드 인디케이터 */}
-      <div className="slider-indicator" style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+      <div className="slider-indicator" style={{ display: 'flex', justifyContent: 'center', position: 'absolute', bottom: '15px', width: '100%', zIndex: 1 }}>
+
         {[1, 2, 3, 4].map((_, index) => (
-          <div 
+          <div
             key={index}
+            onClick={() => handleIndicatorClick(index)}
             style={{
               width: '8px',
               height: '8px',
               borderRadius: '50%',
-              backgroundColor: index === 0 ? '#5453EE' : '#E9EAEE',
-              margin: '0 4px'
+              backgroundColor: currentSlide === index ? '#5453EE' : '#ffffff',
+              boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
+              margin: '0 9px',
+              cursor: 'pointer',
             }}
           />
         ))}
       </div>
 
       {/* 포토부스 정보 및 길찾기 버튼 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', padding: '0 16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '19px', padding: '0 16px' }}>
         <div>
           <p style={{ fontSize: '16px', fontWeight: '600', margin: '0' }}>{boothName}</p>
-          <p style={{ fontSize: '12px', color: '#676F7B', margin: '5px 0' }}>{location}</p>
+          <p style={{ fontSize: '12px', color: '#676F7B', margin: '8px 0' }}>{location}</p>
           <p style={{ fontSize: '12px', color: '#676F7B', margin: '5px 0' }}>현재 위치로부터 {distance}</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Button 
             text="길안내 시작" 
             backgroundColor="#5453EE"
             color="#ffffff"
             borderRadius="30px"
-            padding="10px 27.5px"
+            padding="10px 27px"
             fontSize="16px"
             boxShadow="none"
             onClick={() => alert('길찾기 클릭!')}
@@ -171,10 +207,37 @@ const BoothReviewPage = () => {
 
       {/* 탭에 따른 내용 */}
       <div className='scroll-container-y' style={{  marginTop: '23px', height: 'calc(100vh - 500px)', overflowY: 'auto' }}>
-        {selectedTab === 'home' && (
-          <div>
-            <p style={{ fontSize: '16px', fontWeight: '600' }}>부스 만족도</p>
-            <p style={{ fontSize: '14px', color: '#676F7B' }}>별점: ⭐ 4.5</p>
+   
+         {selectedTab === 'home' && (
+          <div style={{paddingLeft: '17px'}}>
+            <p style={{ fontSize: '18px', fontWeight: '600' }}>부스 만족도</p>
+            
+            {/* 별점과 아이콘이 나란히 표시 */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '19px' }}>
+              <div style={{ display: 'flex', gap: '5px' }}>
+                {[1, 2, 3, 4, 5].map((index) => (
+                  <StarIcon 
+                    key={index}
+                    isSelected={index <= rating} 
+                    onClick={() => handleStarClick(index)} 
+                  />
+                ))}
+              </div>
+
+              {/* 선택된 별에 따른 아이콘 */}
+              <div>
+                {rating === 1 && <OneStarIcon />}
+                {rating === 2 && <TwoStarIcon />}
+                {rating === 3 && <ThreeStarIcon />}
+                {rating === 4 && <FourStarIcon />}
+                {rating === 5 && <FiveStarIcon />}
+              </div>
+            </div>
+
+            <Text fontSize="16px" color="#FFFFFF" fontWeight="400" marginTop="12px">
+              {rating > 0 ? `별 ${rating}개 선택됨` : '별점을 선택해주세요'}
+            </Text>
+
             <div className="review-images" style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginTop: '20px' }}>
               {[1, 2, 3, 4].map((_, index) => (
                 <img 
@@ -215,7 +278,7 @@ const BoothReviewPage = () => {
             <div>
               <div style={{display:'flex', marginLeft : '16px' }}>
                 <Text fontSize="18px" color="#171C24" fontWeight="600"> 리뷰 </Text>
-                <Text fontSize="18px" color="#676F7B" fontWeight="600" > {totalReview} </Text>
+                <Text fontSize="18px" color="#676F7B" fontWeight="600" marginLeft="5px" > {totalReview} </Text>
               </div>
               {reviews.map((review, index) => (
                 <ReviewList
@@ -238,15 +301,14 @@ const BoothReviewPage = () => {
         )}
         {selectedTab === 'photo' && (
           <div>
-            <p style={{ fontSize: '16px', fontWeight: '600' }}>사진 갤러리</p>
             {/* 사진 리스트 */}
-            <div className="photo-gallery" style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(2, 1fr)', marginTop: '20px' }}>
+            <div className="photo-gallery" style={{ display: 'grid', gap: '8px', padding: '16px', gridTemplateColumns: 'repeat(2, 1fr)'}}>
               {[1, 2, 3, 4, 5, 6].map((_, index) => (
                 <img 
                   key={index}
                   src={`https://via.placeholder.com/150?text=Photo+${index + 1}`} 
                   alt={`갤러리 이미지 ${index + 1}`}
-                  style={{ width: '100%', height: '150px', borderRadius: '10px', objectFit: 'cover' }}
+                  style={{ width: '100%', maxheight : '186px', borderRadius: '8px', objectFit: 'cover' }}
                 />
               ))}
             </div>
