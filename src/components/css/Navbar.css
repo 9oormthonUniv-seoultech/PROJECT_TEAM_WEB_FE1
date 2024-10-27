@@ -18,6 +18,13 @@
     width: 100%; 
     padding: 0 55px; 
   }
+
+  .navbar-list.select-mode {
+    justify-content: center;
+    gap: 157px; /* 두 개의 아이템 사이 간격 */
+    padding: 0 92px; /* 좌우 여백 제거 */
+    width: auto; /* 중앙 정렬을 위해 너비 축소 */
+  }
   
   .navbar-item {
     display: flex;

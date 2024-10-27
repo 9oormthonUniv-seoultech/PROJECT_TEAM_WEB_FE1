@@ -6,34 +6,42 @@ import Button from '../components/js/Button';
 import Text from '../components/js/Text';
 import { ReactComponent as SpeechBubbleIcon } from '../assets/speech-bubble-icon2.svg'; 
 import { ReactComponent as EmptyIcon } from '../assets/empty-icon.svg';
-import Photo from '../components/js/Photo'; // PhotoCard 컴포넌트 가져오기
+import Photo from '../components/js/Photo';
 import YearMonthModal from '../components/js/YearMonthModal';
-
 
 function AlbumPage() {
   const [selectedButton, setSelectedButton] = useState('');
   const [photos, setPhotos] = useState([
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    { url: 'https://via.placeholder.com/200x145' },
-    // 필요한 만큼 추가
+    { id: 1, url: 'https://via.placeholder.com/200x145' },
+    { id: 2, url: 'https://via.placeholder.com/200x145' },
+    { id: 3, url: 'https://via.placeholder.com/200x145' },
+    { id: 4, url: 'https://via.placeholder.com/200x145' },
+    { id: 5, url: 'https://via.placeholder.com/200x145' },
+    { id: 6, url: 'https://via.placeholder.com/200x145' },
+    { id: 7, url: 'https://via.placeholder.com/200x145' },
+    { id: 8, url: 'https://via.placeholder.com/200x145' },
   ]);
 
-  const handleSearch = () => {
-    console.log('앨범 페이지에서 검색!');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState([]);
+
+  const handleSelectButtonClick = () => {
+    setIsSelectMode((prev) => !prev);
+    setSelectedPhotos([]);
+  };
+
+  const togglePhotoSelection = (photoId) => {
+    setSelectedPhotos((prevSelected) =>
+      prevSelected.includes(photoId)
+        ? prevSelected.filter((id) => id !== photoId)
+        : [...prevSelected, photoId]
+    );
   };
 
   const handleClick = (buttonId) => {
     setSelectedButton(buttonId);
-    console.log(`${buttonId} 버튼 클릭!`);
   };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleButtonClick = () => {
     setIsModalOpen(true);
@@ -49,10 +57,18 @@ function AlbumPage() {
   };
 
   return (
-    <div className="app-container" style={{ position: 'relative', width: '390px', height: '844px', overflow: 'hidden', margin: '0 auto', border: '1px solid #ccc' }}>
-      
-      {/* 검색창과 날짜/선택/추가 버튼 그룹 */}
-      <div 
+    <div
+      className="app-container"
+      style={{
+        position: 'relative',
+        width: '390px',
+        height: '844px',
+        overflow: 'hidden',
+        margin: '0 auto',
+        border: '1px solid #ccc',
+      }}
+    >
+      <div
         style={{
           display: 'flex',
           flexDirection: 'column',
@@ -62,31 +78,30 @@ function AlbumPage() {
           zIndex: 1,
         }}
       >
-        <SearchBar 
-          placeholder="#민지를 통해 민지와 함께 찍은 사진 보기" 
-          icon={searchIcon} 
-          onSearch={handleSearch} 
+        <SearchBar
+          placeholder="#민지를 통해 민지와 함께 찍은 사진 보기"
+          icon={searchIcon}
+          onSearch={() => console.log('앨범 페이지에서 검색!')}
           width="341px"
           height="44px"
         />
 
-        {/* 날짜, 선택, 추가 버튼 */}
-        <div 
-          className="buttonGroup" 
+        <div
+          className="buttonGroup"
           style={{
             display: 'flex',
             width: '100%',
-            marginLeft :'16px',
-            marginTop : '17px',
+            marginLeft: '16px',
+            marginTop: '17px',
             zIndex: 20,
           }}
         >
-          <div style={{ position: 'relative' }}> 
-            <Button 
-              text="2024년 8월" 
+          <div style={{ position: 'relative' }}>
+            <Button
+              text="2024년 8월"
               onClick={handleButtonClick}
-              backgroundColor="#5453EE" 
-              borderRadius="30px" 
+              backgroundColor="#5453EE"
+              borderRadius="30px"
               width="114px"
               height="33px"
               boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)"
@@ -94,19 +109,21 @@ function AlbumPage() {
               fontSize="16px"
               marginRight="8px"
             />
-            <SpeechBubbleIcon style={{
-              position: 'absolute',
-              marginLeft: '16px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-            }} />
+            <SpeechBubbleIcon
+              style={{
+                position: 'absolute',
+                marginLeft: '16px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
+            />
           </div>
 
-          <Button 
-            text="선택" 
-            onClick={handleClick} 
-            backgroundColor="#C7C9CE" 
-            borderRadius="30px" 
+          <Button
+            text="선택"
+            onClick={handleSelectButtonClick}
+            backgroundColor="#C7C9CE"
+            borderRadius="30px"
             width="57px"
             height="33px"
             boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)"
@@ -115,11 +132,11 @@ function AlbumPage() {
             marginLeft="121px"
           />
 
-          <Button 
-            text="추가" 
-            onClick={handleClick} 
-            backgroundColor="#C7C9CE" 
-            borderRadius="30px" 
+          <Button
+            text="추가"
+            onClick={() => console.log('추가 버튼 클릭')}
+            backgroundColor="#C7C9CE"
+            borderRadius="30px"
             width="57px"
             height="33px"
             boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)"
@@ -130,14 +147,21 @@ function AlbumPage() {
         </div>
       </div>
 
-      {/* 스크롤 가능한 사진 영역 */}
-      <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingBottom: '100px', marginLeft :'16px' }}>
+      <div
+        className="scrollable-content"
+        style={{
+          overflowY: 'auto',
+          height: 'calc(100% - 220px)',
+          paddingBottom: '100px',
+          marginLeft: '16px',
+        }}
+      >
         {photos.length === 0 ? (
           <>
             <EmptyIcon style={{ marginTop: '121px' }} />
-            <Text 
-              fontSize="18px" 
-              color="#676F7B" 
+            <Text
+              fontSize="18px"
+              color="#676F7B"
               textAlign="center"
               fontWeight="500"
               marginTop="23px"
@@ -146,79 +170,89 @@ function AlbumPage() {
             </Text>
           </>
         ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 174px)', 
-            gap: '10px',
-            
-          }}>
-            {photos.map((photo, index) => (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 174px)',
+              gap: '10px',
+            }}
+          >
+            {photos.map((photo) => (
               <Photo
-                key={index} 
-                photoUrl={photo.url} 
-                altText={`사진 ${index + 1}`} 
+                key={photo.id}
+                photoUrl={photo.url}
+                altText={`사진 ${photo.id}`}
+                isSelectMode={isSelectMode}
+                isSelected={selectedPhotos.includes(photo.id)}
+                onClick={() => togglePhotoSelection(photo.id)}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* 날짜별/포토부스별/위치별 버튼 그룹 */}
-      <div 
-        className="buttonGroup" 
-        style={{
-          display: 'flex',
-          position: 'fixed',
-          left: '50%',
-          top : '700px',
-          transform: 'translateX(-50%)',
-          width: '288px',
-          height: '42px',
-          backgroundColor: "#C7C9CE",
-          opacity: '80%',
-          borderRadius: '30px',
-          boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
-          zIndex: '20',
-        }}
+
+
+      {!isSelectMode && (    
+        <div
+          className="buttonGroup"
+          style={{
+            display: 'flex',
+            position: 'fixed',
+            left: '50%',
+            top: '700px',
+            transform: 'translateX(-50%)',
+            width: '288px',
+            height: '42px',
+            backgroundColor: '#C7C9CE',
+            opacity: '80%',
+            borderRadius: '30px',
+            boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
+            zIndex: 20,
+          }}
+        >
+          <Button
+            text="날짜별"
+            onClick={() => handleClick('date')}
+            backgroundColor={selectedButton === 'date' ? '#676F7B' : '#C7C9CE'}
+            borderRadius="30px"
+            color={selectedButton === 'date' ? '#ffffff' : '#4B515A'}
+            fontSize="16px"
+            padding="11px 18px"
+            boxShadow="none"
+          />
+          <Button
+            text="포토부스별"
+            onClick={() => handleClick('photobooth')}
+            backgroundColor={selectedButton === 'photobooth' ? '#676F7B' : '#C7C9CE'}
+            borderRadius="30px"
+            color={selectedButton === 'photobooth' ? '#ffffff' : '#4B515A'}
+            fontSize="16px"
+            padding="11px 19px"
+            boxShadow="none"
+          />
+          <Button
+            text="위치별"
+            onClick={() => handleClick('location')}
+            backgroundColor={selectedButton === 'location' ? '#676F7B' : '#C7C9CE'}
+            borderRadius="30px"
+            color={selectedButton === 'location' ? '#ffffff' : '#4B515A'}
+            fontSize="16px"
+            padding="11px 18px"
+            boxShadow="none"
+          />
+        </div>
+      )}
+
+      <div
+        className="navbar-fixed"
+        style={{ position: 'absolute', bottom: '0', width: '100%', zIndex: 20 }}
       >
-        <Button 
-          text="날짜별" 
-          onClick={() => handleClick('date')} 
-          backgroundColor={selectedButton === 'date' ? "#676F7B" : "#C7C9CE"} 
-          borderRadius="30px"
-          color={selectedButton === 'date' ? "#ffffff" : "#4B515A"}
-          fontSize="16px"
-          padding="11px 18px"
-          boxShadow="none"
-        />
-        <Button 
-          text="포토부스별" 
-          onClick={() => handleClick('photobooth')} 
-          backgroundColor={selectedButton === 'photobooth' ? "#676F7B" : "#C7C9CE"} 
-          borderRadius="30px"
-          color={selectedButton === 'photobooth' ? "#ffffff" : "#4B515A"}
-          fontSize="16px"
-          padding="11px 19px"
-          boxShadow="none"
-        />
-        <Button 
-          text="위치별" 
-          onClick={() => handleClick('location')} 
-          backgroundColor={selectedButton === 'location' ? "#676F7B" : "#C7C9CE"} 
-          borderRadius="30px"
-          color={selectedButton === 'location' ? "#ffffff" : "#4B515A"}
-          fontSize="16px"
-          padding="11px 18px"
-          boxShadow="none"
-        />
+        // AlbumPage.js
+      <Navbar isSelectMode={isSelectMode} />
+
       </div>
 
-      {/* 고정된 Navbar */}
-      <div className="navbar-fixed" style={{ position: 'absolute', bottom: '0', width: '100%', zIndex: 20 }}>
-        <Navbar />
-      </div>
-
-      {/* 모달 렌더링 */}
       {isModalOpen && (
         <YearMonthModal onClose={handleModalClose} onConfirm={handleModalConfirm} />
       )}
