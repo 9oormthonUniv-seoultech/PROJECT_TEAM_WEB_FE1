@@ -12,8 +12,11 @@ function Text({
   borderRadius,
   backgroundColor,
   padding,
-  position = 'static', // 기본값 설정
-  zIndex = 1, // 기본 zIndex 설정
+  border, // 테두리 두께와 스타일
+  width, // 텍스트 박스 전체 너비
+  height, // 텍스트 박스 전체 높이
+  position = 'static',
+  zIndex = 1,
   top,
   left,
   right,
@@ -33,20 +36,23 @@ function Text({
     borderRadius: borderRadius,
     backgroundColor: backgroundColor,
     padding: padding,
-    position: position, // position 속성 추가
-    zIndex: zIndex, // zIndex 속성 추가
-    top: top, // 추가: 필요 시 top 속성
-    left: left, // 추가: 필요 시 left 속성
-    right: right, // 추가: 필요 시 right 속성
-    bottom: bottom, // 추가: 필요 시 bottom 속성
-    display: 'flex', // 아이콘과 텍스트를 가로로 정렬
-    alignItems: 'center', // 아이콘과 텍스트를 세로로 정렬
+    border: border, // border 스타일 추가
+    width: width, // width 추가
+    height: height, // height 추가
+    position: position,
+    zIndex: zIndex,
+    top: top,
+    left: left,
+    right: right,
+    bottom: bottom,
+    display: 'flex',
+    alignItems: 'center',
   };
 
   const iconStyle = {
     width: iconSize,
     height: iconSize,
-    marginRight: iconMarginRight, // 아이콘과 텍스트 사이 간격
+    marginRight: iconMarginRight,
   };
 
   return (

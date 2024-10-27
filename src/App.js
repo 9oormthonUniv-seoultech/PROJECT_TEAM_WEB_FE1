@@ -5,6 +5,7 @@ import Logo from './components/js/Logo';
 import LoginPage from  './pages/LoginPage'; 
 import HomePage from './pages/HomePage';
 import AlbumPage from './pages/AlbumPage';
+import AlbumBoothSelectionPage from './pages/AlbumBoothSelectionPage';
 import MyPage from './pages/MyPage';
 import AddPhoto from './pages/AddPhotoPage';
 import NotePhoto from './pages/NotePhotoPage';
@@ -22,6 +23,7 @@ function App() {
           <Route path="/Login" element={<LoginPage />} />
           <Route path="/Home" element={<HomePage />} />
           <Route path="/Album" element={<AlbumPage />} />
+          <Route path="/Album-BoothSelection" element={<AlbumBoothSelectionPage />} />
           <Route path="/My" element={<MyPage />} />
           <Route path="/AddPhoto" element={<AddPhoto />} />
           <Route path="/NotePhoto" element={<NotePhoto />} />
