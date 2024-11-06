@@ -76,6 +76,21 @@ body {
   scrollbar-width: none; /* Firefox 스크롤바 */
 }
 
+.scrollable-content-x {
+  
+  overflow-x: auto; /* 가로 스크롤만 활성화 */
+  overflow-y: hidden; /* 세로 스크롤 비활성화 */
+  white-space: nowrap; /* 가로 정렬 */
+  display: flex; /* 플렉스 컨테이너로 설정하여 항목을 가로로 배치 */
+  gap: 8px; /* 아이템 간 간격 */
+  max-width: 390px; /* app-container의 폭과 동일하게 고정 */
+}
+
+.scrollable-content-x::-webkit-scrollbar {
+  display: none; /* 가로 스크롤바 숨기기 */
+}
+
+
 
 
 /* 고정된 위치의 Navbar */

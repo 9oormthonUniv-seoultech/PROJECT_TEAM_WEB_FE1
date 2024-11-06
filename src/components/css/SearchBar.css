@@ -1,22 +1,23 @@
+/* SearchBar.css */
+
 .search-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #E9EAEE;
+    background-color: transparent; /* 기본값을 투명으로 설정 */
     border-radius: 8px;
-   
 }
 
 .search-input {
-    flex  :1;
-    margin-left:15px;
+    flex: 1;
+    margin-left: 15px;
     border: none;
     outline: none;
     background-color: transparent;
 }
 
 .search-button {
-    width : 55px;
+    width: 55px;
     cursor: pointer;
     border: none;
     background: none; /* 배경 제거 */

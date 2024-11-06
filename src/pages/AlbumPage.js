@@ -10,6 +10,7 @@ import { ReactComponent as EmptyIcon } from '../assets/empty-icon.svg';
 import Photo from '../components/js/Photo';
 import YearMonthModal from '../components/js/YearMonthModal';
 import ConfirmModal from '../components/js/ConfirmModal';
+import KakaoMap from '../components/js/KakaoMap';
 
 function AlbumPage() {
   const navigate = useNavigate(); 
@@ -18,6 +19,7 @@ function AlbumPage() {
   const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedBooth, setSelectedBooth] = useState(location.state?.selectedBooth || '포토부스');
+
   const [photos, setPhotos] = useState([
     { id: 1, url: 'https://via.placeholder.com/200x145' },
     { id: 2, url: 'https://via.placeholder.com/200x145' },
@@ -45,7 +47,7 @@ function AlbumPage() {
     },
     location: {
       displayText: "위치별 보기",
-      onClick: () => console.log('위치별 선택됨'),
+      onClick: () => setSelectedButton(true),
     },
   };
 
@@ -93,15 +95,25 @@ function AlbumPage() {
 
   return (
     <div className="app-container" style={{ position: 'relative', width: '390px', height: '844px', overflow: 'hidden', margin: '0 auto', border: '1px solid #ccc' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', top: '20px', zIndex: 1 }}>
-        <SearchBar
-          placeholder="#민지를 통해 민지와 함께 찍은 사진 보기"
+
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'fixed', top: '20px', zIndex: 2 }}>
+      <SearchBar
+          placeholder={selectedButton === 'location' ? '현위치' : '#민지를 통해 민지와 함께 찍은 사진 보기'}
           icon={searchIcon}
           onSearch={() => console.log('앨범 페이지에서 검색!')}
           width="341px"
           height="44px"
-        />
+          zIndex={selectedButton === 'location' ? 10 : 1}  
+          position= 'relative' // 위치별에서 고정
+          top={selectedButton === 'location' ? '20px' : 'auto'}
+          marginLeft = {selectedButton === 'location' ? '16px' : '0px'} 
+          backgroundColor={selectedButton === 'location' ? '#FFFFFF' : '#E9EAEE'}
+          color={selectedButton === 'location' ? '#000000' : '#676F7B'}
+      />
 
+
+
+      {selectedButton !== 'location' && ( // 위치별 선택이 아닌 경우에만 버튼 그룹 표시
         <div className="buttonGroup" style={{ display: 'flex', width: '100%', marginLeft: '16px', marginTop: '17px', zIndex: 20 }}>
           <div style={{ position: 'relative' }}>
             <Button
@@ -137,40 +149,47 @@ function AlbumPage() {
             </>
           )}
         </div>
-      </div>
+      )}
+    </div>
 
-      <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingBottom: '100px', marginLeft: '16px' }}>
-        {photos.length === 0 ? (
-          <>
-            <EmptyIcon style={{ marginTop: '121px' }} />
-            <Text fontSize="18px" color="#676F7B" textAlign="center" fontWeight="500" marginTop="23px">
-              사진을 채워보세요
-            </Text>
-          </>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 174px)', gap: '10px' }}>
-            {photos.map((photo) => (
-              <Photo key={photo.id} photoUrl={photo.url} altText={`사진 ${photo.id}`} isSelectMode={isSelectMode} isSelected={selectedPhotos.includes(photo.id)} onClick={() => togglePhotoSelection(photo.id)} />
-            ))}
-          </div>
-        )}
-      </div>
+
+      
+      {selectedButton === 'location' ? (
+        <KakaoMap source="album" />
+      ) : (
+        <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingTop : '95px', paddingBottom: '100px', marginLeft: '16px'  }}>
+          {photos.length === 0 ? (
+            <>
+              <EmptyIcon style={{ marginTop: '121px' }} />
+              <Text fontSize="18px" color="#676F7B" textAlign="center" fontWeight="500" marginTop="23px">
+                사진을 채워보세요
+              </Text>
+            </>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 174px)', gap: '10px' }}>
+              {photos.map((photo) => (
+                <Photo key={photo.id} photoUrl={photo.url} altText={`사진 ${photo.id}`} isSelectMode={isSelectMode} isSelected={selectedPhotos.includes(photo.id)} onClick={() => togglePhotoSelection(photo.id)} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {!isSelectMode && (
         <div className="buttonGroup" style={{ display: 'flex', position: 'fixed', left: '50%', top: '700px', transform: 'translateX(-50%)', width: '288px', height: '42px', backgroundColor: '#C7C9CE', opacity: '80%', borderRadius: '30px', boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)', zIndex: 20 }}>
-          {Object.keys(typeConfig).map((type) => (
-            <Button
-              key={type}
-              text={type === 'date' ? '날짜별' : type === 'photobooth' ? '포토부스별' : '위치별'}
-              onClick={() => handleClick(type)}
-              backgroundColor={selectedButton === type ? '#676F7B' : '#C7C9CE'}
-              borderRadius="30px"
-              color={selectedButton === type ? '#ffffff' : '#4B515A'}
-              fontSize="16px"
-              padding="11px 18px"
-              boxShadow="none"
-            />
-          ))}
+        {Object.keys(typeConfig).map((type) => (
+          <Button
+            key={type}
+            text={type === 'date' ? '날짜별' : type === 'photobooth' ? '포토부스별' : '위치별'}
+            onClick={() => handleClick(type)}
+            backgroundColor={selectedButton === type ? '#676F7B' : '#C7C9CE'}
+            borderRadius="30px"
+            color={selectedButton === type ? '#ffffff' : '#4B515A'}
+            fontSize="16px"
+            padding="11px 18px"
+            boxShadow="none"
+          />
+        ))}
         </div>
       )}
 

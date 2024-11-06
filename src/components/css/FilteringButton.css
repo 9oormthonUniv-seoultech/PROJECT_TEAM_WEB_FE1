@@ -3,18 +3,24 @@
     cursor: pointer;
     font-weight: 400;
     font-size: 14px;
-    color : #676F7B;
+    color: #676F7B;
     background-color: white;
-    padding : 8px 22px;
-    display : inline-block;
+    padding: 8px 22px;
+    display: inline-block;
     border-radius: 24px;
     border: 1px solid #676F7B;
-    box-shadow:3px 3px 10px rgba(0, 0, 0, 0.25);
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .filtering-button:hover {
     background-color: #E1E0FF;
-    color : #5453EE;
+    color: #5453EE;
     border: 1px solid #5453EE;
 }
-  
+
+/* 선택된 상태 스타일 */
+.filtering-button.selected {
+    background-color: #E1E0FF; /* 선택 시 배경색 */
+    color: #5453EE;           /* 선택 시 텍스트 색 */
+    border: 1px solid #5453EE;
+}
