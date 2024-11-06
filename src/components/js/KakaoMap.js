@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Map, CustomOverlayMap } from 'react-kakao-maps-sdk';
+import { Map, MapMarker, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import CustomMarkerOverlay from './CustomMarkerOverlay';
 import ClickedCustomMarker from './ClickedCustomMarker';
 
@@ -18,6 +18,8 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
     '포토그레이': '/images/photogray.png',
     '비룸': '/images/broom.png',
   };
+
+  
 
   useEffect(() => {
     if (!propLocations.length && navigator.geolocation) {
@@ -76,6 +78,19 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
   return (
     <div style={styles.mapContainer}>
       <Map center={center || userLocation || { lat: 37.6329741, lng: 127.0798802 }} style={styles.map} level={4}>
+        
+        {/* Center 위치에 기본 마커 표시 */}
+        {center && (
+          <MapMarker
+            position={center}
+            image={{
+              src: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', // 카카오 제공 기본 마커 이미지
+              size: { width: 24, height: 35 }
+            }}
+          />
+        )}
+
+        {/* 검색 결과 마커 */}
         {filteredLocations.map((location) => (
           <CustomOverlayMap
             key={location.id}

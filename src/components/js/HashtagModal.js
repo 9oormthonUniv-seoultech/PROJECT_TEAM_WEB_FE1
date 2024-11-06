@@ -6,17 +6,16 @@ import InputValue from './InputValue';
 import { ReactComponent as CloseIcon } from '../../assets/x-icon.svg';
 
 const HashtagModal = ({ onClose, onAdd }) => {
-  const [hashtag, setHashtag] = useState('');
-
-  const handleInputChange = (e) => {
-    setHashtag(e.target.value);
-  };
+  const [hashtag1, setHashtag1] = useState('');
+  const [hashtag2, setHashtag2] = useState('');
+  const [hashtag3, setHashtag3] = useState('');
 
   const handleAddClick = () => {
-    if (hashtag.trim() !== '') {
-      onAdd(hashtag.trim());
-      setHashtag('');
-    }
+    onAdd({
+      hashtag_1: hashtag1.trim(),
+      hashtag_2: hashtag2.trim(),
+      hashtag_3: hashtag3.trim()
+    });
     onClose(); // '확인' 버튼 클릭 시 모달 닫기
   };
 
@@ -28,6 +27,7 @@ const HashtagModal = ({ onClose, onAdd }) => {
         </button>
         <Text fontSize="22px" fontWeight="600" marginTop="41px">해시태그 추가</Text>
         <Text fontSize="12px" fontWeight="400" marginTop="6px">최대 3개까지 #을 추가해볼 수 있어요!</Text>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '34px' }}>
           <Text fontSize="22px" fontWeight="600" color="#676F7B">#</Text>
           <InputValue
@@ -36,10 +36,11 @@ const HashtagModal = ({ onClose, onAdd }) => {
             height="42px"
             placeholder="기념일"
             placeholderColor="#C7C9CE"
-            value={hashtag}
-            onChange={handleInputChange} // 입력값 변경 처리
+            value={hashtag1}
+            onChange={(e) => setHashtag1(e.target.value)} // 첫 번째 해시태그
           />
         </div>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
           <Text fontSize="22px" fontWeight="600" color="#676F7B">#</Text>
           <InputValue
@@ -48,8 +49,11 @@ const HashtagModal = ({ onClose, onAdd }) => {
             height="42px"
             placeholder="이름"
             placeholderColor="#C7C9CE"
+            value={hashtag2}
+            onChange={(e) => setHashtag2(e.target.value)} // 두 번째 해시태그
           />
         </div>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
           <Text fontSize="22px" fontWeight="600" color="#676F7B">#</Text>
           <InputValue
@@ -58,8 +62,11 @@ const HashtagModal = ({ onClose, onAdd }) => {
             height="42px"
             placeholder="장소"
             placeholderColor="#C7C9CE"
+            value={hashtag3}
+            onChange={(e) => setHashtag3(e.target.value)} // 세 번째 해시태그
           />
         </div>
+
         <Button
           text="확인"
           backgroundColor="#5453EE"

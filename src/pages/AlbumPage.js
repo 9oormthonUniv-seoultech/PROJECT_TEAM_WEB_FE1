@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/js/Navbar';
 import SearchBar from '../components/js/SearchBar';
@@ -11,34 +12,34 @@ import Photo from '../components/js/Photo';
 import YearMonthModal from '../components/js/YearMonthModal';
 import ConfirmModal from '../components/js/ConfirmModal';
 import KakaoMap from '../components/js/KakaoMap';
+import axios from 'axios';
 
 function AlbumPage() {
   const navigate = useNavigate(); 
   const location = useLocation();
+  const { userId } = useAuth();
   const initialSelectedButton = location.state?.selectedButton || 'date';
   const [selectedButton, setSelectedButton] = useState(initialSelectedButton);
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedBooth, setSelectedBooth] = useState(location.state?.selectedBooth || '포토부스');
-
-  const [photos, setPhotos] = useState([
-    { id: 1, url: 'https://via.placeholder.com/200x145' },
-    { id: 2, url: 'https://via.placeholder.com/200x145' },
-    { id: 3, url: 'https://via.placeholder.com/200x145' },
-    { id: 4, url: 'https://via.placeholder.com/200x145' },
-    { id: 5, url: 'https://via.placeholder.com/200x145' },
-    { id: 6, url: 'https://via.placeholder.com/200x145' },
-    { id: 7, url: 'https://via.placeholder.com/200x145' },
-    { id: 8, url: 'https://via.placeholder.com/200x145' },
-  ]);
-
+  const [photos, setPhotos] = useState([]);
   const [isYearMonthModalOpen, setIsYearMonthModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState([]);
+  const [dateFilter, setDateFilter] = useState(null);
+
+
+  // 현재 날짜로 기본 연, 월 설정
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+  const [displayDate, setDisplayDate] = useState(`${currentYear}년 ${currentMonth}월`);
+
 
   const typeConfig = {
     date: {
-      displayText: "2024년 8월",
+      displayText: displayDate,
       onClick: () => setIsYearMonthModalOpen(true),
     },
     photobooth: {
@@ -50,6 +51,32 @@ function AlbumPage() {
       onClick: () => setSelectedButton(true),
     },
   };
+
+  useEffect(() => {
+    const fetchPhotosByDate = async () => {
+      try {
+        if (selectedButton === 'date' && userId) {
+          const url = `/api/album/${userId}`;
+          const params = dateFilter ? { date: dateFilter } : {};
+          const response = await axios.get(url, { params });
+          
+          // 서버 응답을 확인하기 위한 콘솔 출력
+          console.log('서버 응답:', response.data);
+
+          const photoData = response.data.images.map((image) => ({
+            url: image.url,
+            photo_like: image.photo_like,
+          }));
+          setPhotos(photoData);
+          console.log('사진 데이터:', photoData);
+        }
+      } catch (error) {
+        console.error('사진 데이터 불러오기 실패:', error);
+      }
+    };
+
+    fetchPhotosByDate();
+  }, [selectedButton, userId, dateFilter]);
 
   const handleSelectButtonClick = () => {
     setIsSelectMode((prev) => !prev);
@@ -69,6 +96,13 @@ function AlbumPage() {
   };
 
   const handleYearMonthModalClose = () => {
+    setIsYearMonthModalOpen(false);
+  };
+
+  const handleYearMonthConfirm = (date) => {
+    const formattedDate = `${date.year}-${date.month.padStart(2, '0')}`;
+    setDateFilter(formattedDate);
+    setDisplayDate(`${date.year}년 ${date.month}월`); // displayText 업데이트
     setIsYearMonthModalOpen(false);
   };
 
@@ -157,11 +191,11 @@ function AlbumPage() {
       {selectedButton === 'location' ? (
         <KakaoMap source="album" />
       ) : (
-        <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingTop : '95px', paddingBottom: '100px', marginLeft: '16px'  }}>
+        <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingTop : '121px', paddingBottom: '100px', marginLeft: '94px'  }}>
           {photos.length === 0 ? (
             <>
               <EmptyIcon style={{ marginTop: '121px' }} />
-              <Text fontSize="18px" color="#676F7B" textAlign="center" fontWeight="500" marginTop="23px">
+              <Text fontSize="18px" color="#676F7B" textAlign="center" fontWeight="500" marginTop="23px" marginLeft="30px">
                 사진을 채워보세요
               </Text>
             </>
@@ -201,7 +235,7 @@ function AlbumPage() {
         <ConfirmModal message={confirmMessage} onConfirm={handleConfirmModalClose} onCancel={() => setIsConfirmModalOpen(false)} style={{ zIndex: 1000, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
       )}
       {isYearMonthModalOpen && (
-        <YearMonthModal onClose={handleYearMonthModalClose} onConfirm={handleModalConfirm} />
+        <YearMonthModal onClose={handleYearMonthModalClose} onConfirm={handleYearMonthConfirm} />
       )}
     </div>
   );

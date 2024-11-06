@@ -38,7 +38,7 @@ const InputValue = ({
     width: width,
     height: height || '35.05px',
     fontSize: fontSize || '16px',
-    color: color || '#C7C9CE',
+    color: color || '#000000',
     backgroundColor: backgroundColor || '#E9EAEE',
     borderRadius: borderRadius || '6.68px',
     marginTop: marginTop || '0',

@@ -64,10 +64,7 @@ function HomePage() {
 
   const handleMarkerClick = (location) => {
     if (location && userLocation) {
-      // 거리 계산
       const distance = calculateDistance(userLocation.lat, userLocation.lng, location.lat, location.lng);
-      
-      // 선택된 위치에 거리 정보 포함하여 저장
       setSelectedLocation({ ...location, distance: distance.toFixed(0) });
       setIsBottomSheetOpen(true);
     } else {
@@ -93,6 +90,15 @@ function HomePage() {
     '포토이즘컬러드': '/images/photoismcolored.png',
     '포토그레이': '/images/photogray.png',
     '비룸': '/images/broom.png',
+  };
+
+  // 부스별 버튼 클릭 시 선택된 브랜드 업데이트
+  const toggleBrandSelection = (brand) => {
+    setSelectedBrands((prevSelected) => 
+      prevSelected.includes(brand)
+        ? prevSelected.filter((b) => b !== brand)
+        : [...prevSelected, brand]
+    );
   };
 
   const handleMouseDown = (e) => {
@@ -197,13 +203,7 @@ function HomePage() {
   
   
 
-  const toggleBrandSelection = (brand) => {
-    setSelectedBrands((prevSelected) => 
-      prevSelected.includes(brand)
-        ? prevSelected.filter((b) => b !== brand)
-        : [...prevSelected, brand]
-    );
-  };
+ 
 
  
   return (
@@ -277,7 +277,7 @@ function HomePage() {
         locations={searchResults.length > 0 ? searchResults : []}
         onBrandsUpdate={setBrands}
         selectedBrands={selectedBrands}
-        center={mapCenter}
+        center={mapCenter || userLocation}
         onMarkerClick={handleMarkerClick}
         userLocation={userLocation}
       />

@@ -1,11 +1,36 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import Text from './Text';
-import cameraIcon from '../../assets/camera-icon.svg';
-import thunderIcon from '../../assets/thunder-icon.svg';
-import { ReactComponent as BackIcon } from '../../assets/x-icon.svg'; // SVG를 ReactComponent로 불러오기
-import Button from './Button'; // 버튼 컴포넌트 임포트
+import { ReactComponent as BackIcon } from '../../assets/x-icon.svg';
+import Button from './Button';
 
-const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm }) => {
+const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9" }) => {
+  const [qrData, setQrData] = useState(null);
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        // FormData로 파일을 서버에 전송
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await axios.post('/api/photo/temp/upload/qr', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        
+        // 서버에서 QR 코드의 링크를 반환하는 경우
+        setQrData(response.data.qr_link); // 서버에서 반환한 QR 링크 설정
+        alert("QR 코드가 성공적으로 인식되었습니다!");
+      } catch (error) {
+        console.error("QR 코드 인식 실패:", error);
+        alert("QR 코드 인식에 실패했습니다.");
+      }
+    }
+  };
+
   return (
     <div 
       style={{
@@ -21,9 +46,8 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm }) => {
         zIndex: 10,
       }}
     >
-      {/* 상단의 닫기 버튼 */}
       <button 
-        onClick={onClose} // 클릭 시 onClose 호출
+        onClick={onClose}
         style={{
           position: 'absolute',
           top: '41px',
@@ -34,10 +58,9 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm }) => {
           padding : '10px'
         }}
       >
-        <BackIcon style={{ width: '24px', height: '24px', color: iconColor, stroke : '#FFFFFF' }} /> {/* 아이콘 색상 props로 지정 */}
+        <BackIcon style={{ width: '24px', height: '24px', color: iconColor, stroke : '#FFFFFF' }} />
       </button>
 
-      {/* QR 인식 텍스트 상자 */}
       <div 
         style={{
           backgroundColor: '#D9D9D9',
@@ -50,31 +73,17 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm }) => {
           maxHeight : '69px'
         }}
       >
-        <Text 
-          icon={cameraIcon} 
-          fontSize="14px" 
-          color="#171D24" 
-          fontWeight="400" 
-          textAlign="left" 
-          marginTop="0"
-        >
-          어둡고 깔끔한 배경에서 더 잘 인식해요
-        </Text>
-
-        <Text 
-          icon={thunderIcon} 
-          fontSize="14px" 
-          color="#171D24" 
-          fontWeight="400" 
-          textAlign="left" 
-          marginTop="5px"
-        >
-          문서가 빛 반사되지 않도록 주의해주세요
+        <Text fontSize="14px" color="#171D24" fontWeight="400" textAlign="left" marginTop="0">
+          QR 코드를 촬영하여 인식하세요
         </Text>
       </div>
 
-      {/* QR 인식 네모칸 */}
-      <div 
+      {/* QR 촬영 버튼 */}
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment" // 모바일 카메라 활성화
+        onChange={handleFileChange}
         style={{
           width: '270px',
           height: '270px',
@@ -84,23 +93,14 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm }) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          position: 'relative',
           marginTop : '40px'
         }}
-      >
-        {/* QR 인식을 위한 네모칸 내부 컨텐츠 추가 가능 */}
-      </div>
+      />
 
-      <Text 
-          fontSize="18px" 
-          color="#FFFFFF" 
-          fontWeight="500" 
-          marginTop="20px"
-        >
-          네모 안에 QR을 인식해주세요
+      <Text fontSize="18px" color="#FFFFFF" fontWeight="500" marginTop="20px">
+        QR 코드를 인식해주세요
       </Text>
 
-      {/* 확인 버튼 */}
       <Button 
         text="확인" 
         backgroundColor="#5453EE" 
@@ -110,7 +110,13 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm }) => {
         color="#FFFFFF"
         fontSize="16px"
         marginTop="40px"
-        onClick={onConfirm} // 확인 버튼 클릭 시 onConfirm 호출
+        onClick={() => {
+          if (qrData) {
+            alert(`QR 링크: ${qrData}`);
+          } else {
+            alert("QR 코드를 먼저 인식하세요");
+          }
+        }}
       />
     </div>
   );
