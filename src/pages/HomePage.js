@@ -63,8 +63,12 @@ function HomePage() {
   }, []);
 
   const handleMarkerClick = (location) => {
-    if (location) {
-      setSelectedLocation(location);
+    if (location && userLocation) {
+      // 거리 계산
+      const distance = calculateDistance(userLocation.lat, userLocation.lng, location.lat, location.lng);
+      
+      // 선택된 위치에 거리 정보 포함하여 저장
+      setSelectedLocation({ ...location, distance: distance.toFixed(0) });
       setIsBottomSheetOpen(true);
     } else {
       setIsBottomSheetOpen(false);

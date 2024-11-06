@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 import Button from '../components/js/Button';
 import Text from '../components/js/Text';
 import Navbar from '../components/js/Navbar';
@@ -10,9 +12,12 @@ import StarIcon from '../assets/star-icon.svg';
 
 
 const MyPage = () => {
+  const { userId, accessToken, isLoggedIn, logout } = useAuth();
+  const [userProfile, setUserProfile] = useState(null);
   const [selectedTab, setSelectedTab] = useState('booth'); // 탭 상태 관리
-  const userName = '홍길동'; // 임시 유저 이름
   const profileImageUrl = ''; // 임시 프로필 이미지 URL (비어있으면 배경색으로 표시)
+  const userName = userId ? `사용자 ${userId}` : '홍길동'; 
+
 
   // 부스기록 탭 클릭 핸들러
   const handleBoothClick = () => {
@@ -23,6 +28,25 @@ const MyPage = () => {
   const handleFavoriteClick = () => {
     setSelectedTab('favorite'); // 즐겨찾기 탭 선택
   };
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        if (userId) {
+          const response = await axios.get(`/api/user/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          setUserProfile(response.data); // 사용자 프로필 설정
+        }
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [userId, accessToken]);
 
   return (
     <div className="app-container">
@@ -60,16 +84,18 @@ const MyPage = () => {
             justifyContent: 'center', 
             alignItems: 'center' 
           }}>
-          {profileImageUrl && (
+          {userProfile?.profileImage ? (
             <img 
-              src={profileImageUrl} 
+              src={userProfile.profileImage} 
               alt="프로필 사진" 
               style={{ width: '77px', height: '77px', borderRadius: '50%' }} 
             />
+          ) : (
+            <Text color="#FFFFFF" fontSize="20px" fontWeight="600">사진 없음</Text>
           )}
         </div>
         <Text fontSize="20px" color="#171D24" fontWeight="600" marginTop="10px">
-          {userName}
+          {isLoggedIn ? userProfile?.name || '로그인된 사용자' : '로그인이 필요합니다'}
         </Text>
 
         {/* 프로필 편집 버튼 */}
