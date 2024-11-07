@@ -12,18 +12,17 @@ const booths = [
 
 function AlbumBoothSelectionPage() {
   const navigate = useNavigate();
-  const [selectedBooths, setSelectedBooths] = useState([]); // 선택된 부스들
+  const [selectedBooth, setSelectedBooth] = useState([]); // 선택된 부스들
 
   const handleBoothClick = (booth) => {
-    setSelectedBooths((prevSelectedBooths) =>
-      prevSelectedBooths.includes(booth)
-        ? prevSelectedBooths.filter((selected) => selected !== booth) // 선택 해제
-        : [...prevSelectedBooths, booth] // 선택
-    );
+    setSelectedBooth([booth]); // Only one booth can be selected at a time
   };
+  
 
   const handleApplySelection = () => {
-    navigate('/Album', { state: { selectedButton: 'photobooth', selectedBooth: selectedBooths[0] || '포토부스' } });
+    navigate('/Album', { 
+      state: { selectedButton: 'photobooth', selectedBooth } 
+    });
   };
 
   const handleBack = () => {
@@ -64,14 +63,15 @@ function AlbumBoothSelectionPage() {
           >
             <Text 
               fontSize="16px" 
-              color={selectedBooths.includes(booth) ? '#5453EE' : '#C7C9CE'}
+              color={selectedBooth.includes(booth) ? '#5453EE' : '#C7C9CE'}
               fontWeight="600" 
               backgroundColor="#FFFFFF"
               borderRadius="8px"
               width="156px"
               height="38px"
-              border= {selectedBooths.includes(booth) ? "1px solid #5453EE" : "1px solid #C7C9CE"}
-              icon={selectedBooths.includes(booth) ? clickedCircleIcon : CircleIcon}
+
+              border= {selectedBooth.includes(booth) ? "1px solid #5453EE" : "1px solid #C7C9CE"}
+              icon={selectedBooth.includes(booth) ? clickedCircleIcon : CircleIcon}
               iconSize="22px"
               padding="0 0 0 12px"
             >
@@ -81,7 +81,7 @@ function AlbumBoothSelectionPage() {
         ))}
       </div>
 
-      {selectedBooths.length > 0 && (
+      {selectedBooth.length > 0 && (
         <button
           onClick={handleApplySelection}
           style={{

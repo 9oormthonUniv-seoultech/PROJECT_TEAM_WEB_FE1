@@ -22,8 +22,10 @@ function Text({
   right,
   bottom,
   icon,
+  iconPosition = 'left', // 기본적으로 아이콘이 왼쪽에 오도록 설정
   iconSize = '16px',
-  iconMarginRight = '8px'
+  iconMarginRight = '8px',
+  iconMarginLeft = '8px'
 }) {
   const textStyle = {
     fontSize: fontSize,
@@ -52,13 +54,15 @@ function Text({
   const iconStyle = {
     width: iconSize,
     height: iconSize,
-    marginRight: iconMarginRight,
+    marginRight: iconPosition === 'left' ? iconMarginRight : 0,
+    marginLeft: iconPosition === 'right' ? iconMarginLeft : 0,
   };
 
   return (
     <div style={textStyle} className="custom-text">
-      {icon && <img src={icon} alt="icon" style={iconStyle} />}
+      {icon && iconPosition === 'left' && <img src={icon} alt="icon" style={iconStyle} />}
       {children}
+      {icon && iconPosition === 'right' && <img src={icon} alt="icon" style={iconStyle} />}
     </div>
   );
 }

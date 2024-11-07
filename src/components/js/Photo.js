@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
-import checkIcon from '../../assets/check-icon.svg'; // Import the check icon
+import checkIcon from '../../assets/check-icon.svg';
+import axios from 'axios';
 
-function Photo({ photoUrl, altText, isSelected, isSelectMode, onClick }) {
-  const [isLiked, setIsLiked] = useState(false);
+function Photo({ photoUrl, altText, photoId, isLiked: initialIsLiked, isSelected, isSelectMode, onClick }) {
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
 
-  const handleLikeClick = (e) => {
+  const handleLikeClick = async (e) => {
     e.stopPropagation(); // Prevents toggling selection when clicking the heart icon
-    setIsLiked(!isLiked);
+    
+    try {
+      await axios.post(`/api/photo/toggleLike/${photoId}`);
+      console.log(`Sent like request for photo with ID: ${photoId}`);
+      setIsLiked(!isLiked); // Toggle local like state visually
+    } catch (error) {
+      console.error(`Failed to send like request for photo with ID ${photoId}`, error);
+    }
   };
 
   return (
     <div
-      onClick={onClick} // Handle selection when clicking the photo
+      onClick={() => onClick(photoId)}
       style={{
         width: '175px',
         height: '240px',
@@ -19,8 +27,8 @@ function Photo({ photoUrl, altText, isSelected, isSelectMode, onClick }) {
         overflow: 'hidden',
         position: 'relative',
         boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
-        border: isSelectMode && isSelected ? '2px solid #5453EE' : 'none', // Show border only in select mode when selected
-        opacity: isSelectMode && isSelected ? 0.7 : 1, // Adjust opacity if selected in select mode
+        border: isSelectMode && isSelected ? '2px solid #5453EE' : 'none',
+        opacity: isSelectMode && isSelected ? 0.7 : 1,
         cursor: 'pointer',
       }}
     >
@@ -34,22 +42,20 @@ function Photo({ photoUrl, altText, isSelected, isSelectMode, onClick }) {
         }}
       />
 
-      {/* Display check icon if in select mode and photo is selected */}
       {isSelectMode && isSelected && (
         <img
           src={checkIcon}
           alt="Selected"
           style={{
             position: 'absolute',
-            top: '198.57px',
-            right: '10.24px',
+            top: '10px',
+            right: '10px',
             width: '30px',
             height: '30px',
           }}
         />
       )}
 
-      {/* Display heart button if not in select mode */}
       {!isSelectMode && (
         <button
           onClick={handleLikeClick}
@@ -69,7 +75,6 @@ function Photo({ photoUrl, altText, isSelected, isSelectMode, onClick }) {
             cursor: 'pointer',
           }}
         >
-          {/* Heart icon with color toggle */}
           <svg
             width="24"
             height="21"

@@ -62,16 +62,38 @@ function HomePage() {
     }
   }, []);
 
-  const handleMarkerClick = (location) => {
+  const handleMarkerClick = async (location) => {
     if (location && userLocation) {
       const distance = calculateDistance(userLocation.lat, userLocation.lng, location.lat, location.lng);
-      setSelectedLocation({ ...location, distance: distance.toFixed(0) });
+      const updatedLocationInfo = { ...location, distance: distance.toFixed(0) };
+  
+      // 추가 데이터 가져오기
+      try {
+        const response = await fetch(`/api/review/boothphoto/${location.id}`);
+        const reviewData = await response.json();
+  
+        console.log("추가 데이터 응답:", reviewData);  // 응답 데이터를 콘솔에 출력하여 확인
+  
+        // reviewData를 locationInfo에 추가
+        setSelectedLocation({
+          ...updatedLocationInfo,
+          rating: reviewData.rating,
+          reviewPhotos: reviewData.reviewPhotos,
+          totalImageCount: reviewData.totalImageCount,
+        });
+      } catch (error) {
+        console.error("추가 데이터 불러오기 실패:", error);
+        setSelectedLocation(updatedLocationInfo);
+      }
+  
       setIsBottomSheetOpen(true);
     } else {
       setIsBottomSheetOpen(false);
       setSelectedLocation(null);
     }
   };
+  
+  
 
 
   const closeBottomSheet = () => {
@@ -287,6 +309,7 @@ function HomePage() {
         onClose={() => setIsBottomSheetOpen(false)} 
         locationInfo={selectedLocation} 
       />
+     
 
 
       <div className="navbar-fixed" style={{ position: 'absolute', bottom: '0', width: '100%', zIndex: 20 }}>

@@ -17,6 +17,9 @@ const NotePhotoPage = () => {
   const location = useLocation();
   const photoTempUrl = location.state?.photoTempUrl;
   const photoTempId = location.state?.photoTempId;
+  const photoboothId = location.state?.photoboothId;
+  const photoboothName = location.state?.photoboothName;
+  const formattedDate = location.state?.formattedDate;
   const [showHashtagModal, setShowHashtagModal] = useState(false);
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [showSharingOptions, setShowSharingOptions] = useState(false);
@@ -25,7 +28,7 @@ const NotePhotoPage = () => {
   const [hashtags, setHashtags] = useState({ hashtag_1: '', hashtag_2: '', hashtag_3: '' });
 
   const hashtagCount = Object.values(hashtags).filter(tag => tag).length;
-  console.log("Received photoTempuRL:", photoTempUrl, "photoTempId", photoTempId);
+  console.log("Received photoTempuRL:", photoTempUrl, "photoTempId", photoTempId, "photoboothid", photoboothId, "photoboothName", photoboothName, "formattedDate", formattedDate);
 
   const handleAddClick = () => {
     setShowHashtagModal(true);
@@ -92,7 +95,7 @@ const NotePhotoPage = () => {
       }
 
       // 요청이 완료된 후 '/sharesuccess'로 이동
-      navigate('/ShareSuccess');
+      navigate('/ShareSuccess', { state: { newPhotoId : newPhotoId,photoboothId: photoboothId, photoboothName : photoboothName , formattedDate : formattedDate} });
     } catch (error) {
       console.error('공유 요청 실패:', error);
       console.error('에러 상세:', {
@@ -104,8 +107,10 @@ const NotePhotoPage = () => {
     }
   };
 
-  const handleNextTimeClick = () => {
+  const handleNextTimeClick = async () => {
     // '다음에 할게요' 버튼을 클릭하면 '/home'으로 이동
+    const saveResponse = await axios.post(`/api/photo/save/${photoTempId}`);
+    console.log('POST 요청 응답 데이터:', saveResponse.data);
     navigate('/home');
   };
 
@@ -150,7 +155,7 @@ const NotePhotoPage = () => {
       <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#2A303A', height: '715px' }}>
         {!showSharingOptions ? (
           <>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '16px', marginLeft: '13.5px', flexWrap: 'wrap' }}>
+            <div class="scrollable-content-x" style={{ display: 'flex', gap: '8px', marginTop: '16px', marginLeft: '13.5px', flexWrap: 'wrap' }}>
               {Object.values(hashtags).some((tag) => tag) ? (
                 <>
                   {Object.entries(hashtags).map(([key, tag]) => 

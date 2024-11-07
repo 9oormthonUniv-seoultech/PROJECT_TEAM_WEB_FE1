@@ -14,6 +14,9 @@ import ConfirmModal from '../components/js/ConfirmModal';
 import KakaoMap from '../components/js/KakaoMap';
 import axios from 'axios';
 
+
+
+
 function AlbumPage() {
   const navigate = useNavigate(); 
   const location = useLocation();
@@ -28,7 +31,31 @@ function AlbumPage() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState([]);
   const [dateFilter, setDateFilter] = useState(null);
+  const [actionType, setActionType] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  
 
+  const [displayPhotos, setDisplayPhotos] = useState([]);
+  // 임시 데이터
+  const boothPhotos = {
+    'booth1': [
+      { id: 1, url: 'https://via.placeholder.com/150', photo_like: false },
+      { id: 2, url: 'https://via.placeholder.com/150', photo_like: true }
+    ],
+    'booth2': [
+      { id: 3, url: 'https://via.placeholder.com/150', photo_like: false },
+      { id: 4, url: 'https://via.placeholder.com/150', photo_like: true }
+    ],
+    'booth3': [
+      { id: 5, url: 'https://via.placeholder.com/150', photo_like: true },
+      { id: 6, url: 'https://via.placeholder.com/150', photo_like: false }
+    ]
+  };
+
+  const handleBoothClick = (boothName) => {
+    setSelectedBooth(boothName);
+    setPhotos(boothPhotos[boothName] || []); // 해당 부스에 대한 사진 표시
+  };
 
   // 현재 날짜로 기본 연, 월 설정
   const today = new Date();
@@ -43,7 +70,7 @@ function AlbumPage() {
       onClick: () => setIsYearMonthModalOpen(true),
     },
     photobooth: {
-      displayText: selectedBooth,
+      displayText: selectedBooth , // Use the selected booth name if available
       onClick: () => navigate('/Album-BoothSelection', { state: { selectedButton: 'photobooth' } }),
     },
     location: {
@@ -51,32 +78,64 @@ function AlbumPage() {
       onClick: () => setSelectedButton(true),
     },
   };
+  
 
   useEffect(() => {
-    const fetchPhotosByDate = async () => {
+    const fetchPhotos = async () => {
       try {
-        if (selectedButton === 'date' && userId) {
+        if (userId) {
           const url = `/api/album/${userId}`;
-          const params = dateFilter ? { date: dateFilter } : {};
-          const response = await axios.get(url, { params });
-          
-          // 서버 응답을 확인하기 위한 콘솔 출력
-          console.log('서버 응답:', response.data);
+          let params = {};
 
-          const photoData = response.data.images.map((image) => ({
-            url: image.url,
-            photo_like: image.photo_like,
+          if (selectedButton === 'date' && dateFilter) {
+            params = { date: dateFilter };
+          } else if (selectedButton === 'photobooth' && selectedBooth !== '포토부스') {
+            params = { brand: selectedBooth };
+          }
+
+          const response = await axios.get(url, { params });
+          const photoData = response.data.map((item) => ({
+            url: item.images,
+            photo_like: item.photo_like,
+            id: item.photo_id,
           }));
+          
           setPhotos(photoData);
-          console.log('사진 데이터:', photoData);
+          console.log('가져온 사진 데이터:', photoData);
         }
       } catch (error) {
         console.error('사진 데이터 불러오기 실패:', error);
       }
     };
 
-    fetchPhotosByDate();
-  }, [selectedButton, userId, dateFilter]);
+    if (selectedButton === 'date' || selectedButton === 'photobooth') {
+      fetchPhotos();
+    }
+  }, [selectedButton, selectedBooth, userId, dateFilter]);
+
+
+  const handleSearch = async () => {
+    if (!searchQuery) return; // 검색어가 없을 때는 요청하지 않음
+    try {
+      const response = await axios.get(`/api/album/${userId}`, {
+        params: { hashtag: searchQuery }
+      });
+      
+      console.log("요청한 데이터:", { userId, hashtag: searchQuery });
+      console.log("응답받은 데이터:", response.data);
+
+      const photoData = response.data.map((item) => ({
+        url: item.images,
+        photo_like: item.photo_like,
+        id: item.photo_id,
+      }));
+      
+      setPhotos(photoData); // 검색 결과를 photos 상태에 업데이트
+    } catch (error) {
+      console.error('검색 데이터 불러오기 실패:', error);
+    }
+  };
+  
 
   const handleSelectButtonClick = () => {
     setIsSelectMode((prev) => !prev);
@@ -91,9 +150,54 @@ function AlbumPage() {
     );
   };
 
-  const handleClick = (buttonId) => {
-    setSelectedButton(buttonId);
+  const handleClick = async (buttonId) => {
+    if (buttonId === 'date') {
+      setDateFilter(null);
+      setSelectedBooth('포토부스');
+      setSelectedButton('date');
+      setSearchQuery(''); // 검색어 초기화
+      setDisplayDate(`${currentYear}년 ${currentMonth}월`);
+      await fetchPhotos(); // Fetch default photos for the current date
+    } else if (buttonId === 'photobooth') {
+      setSelectedButton('photobooth');
+      setSelectedBooth('포토부스'); // Reset selected booth filter
+      await fetchPhotos(); // Fetch photos filtered by photobooth
+    } else {
+      setSelectedButton(buttonId);
+    }
   };
+  
+  
+
+  const fetchPhotos = async () => {
+    try {
+      if (userId) {
+        const url = `/api/album/${userId}`;
+        const response = await axios.get(url);
+  
+        console.log('API 응답 데이터:', response.data); // Log the response to inspect the structure
+  
+        // Check if response.data is an array
+        if (Array.isArray(response.data)) {
+          const photoData = response.data.map((item) => ({
+            url: item.images,
+            photo_like: item.photo_like,
+            id: item.photo_id,
+          }));
+          
+          setPhotos(photoData);
+        } else {
+          console.error('API 응답이 배열 형식이 아닙니다:', response.data);
+        }
+      }
+    } catch (error) {
+      console.error('사진 데이터 불러오기 실패:', error);
+    }
+  };
+  
+  
+  
+  
 
   const handleYearMonthModalClose = () => {
     setIsYearMonthModalOpen(false);
@@ -113,7 +217,45 @@ function AlbumPage() {
           ? `${selectedPhotos.length}장의 사진을 즐겨찾기 하시겠어요?` 
           : `${selectedPhotos.length}장의 사진을 삭제하시겠어요?`
       );
-      setIsConfirmModalOpen(true);
+      setActionType(action);
+      setIsConfirmModalOpen(true); // 모달을 여는 역할만 수행
+    }
+  };
+  
+  const handleLikeAction = async () => {
+    const updatedPhotos = photos.map(photo => 
+      selectedPhotos.includes(photo.id)
+        ? { ...photo, photo_like: true } // 좋아요 표시로 업데이트
+        : photo
+    );
+    
+    // 상태 업데이트를 통해 즉시 UI에 반영
+    setPhotos(updatedPhotos);
+  
+    // 서버 업데이트
+    for (const photoId of selectedPhotos) {
+      try {
+        await axios.post(`/api/photo/like/${photoId}`);
+        console.log(`Liked photo with ID: ${photoId}`);
+      } catch (error) {
+        console.error(`Failed to like photo with ID: ${photoId}`, error);
+      }
+    }
+  };
+  const handleDeleteAction = async () => {
+    const remainingPhotos = photos.filter(photo => !selectedPhotos.includes(photo.id));
+    
+    // 상태 업데이트를 통해 즉시 UI에 반영
+    setPhotos(remainingPhotos);
+  
+    // 서버 업데이트
+    for (const photoId of selectedPhotos) {
+      try {
+        await axios.delete(`/api/photo/delete/${photoId}`);
+        console.log(`Deleted photo with ID: ${photoId}`);
+      } catch (error) {
+        console.error(`Failed to delete photo with ID: ${photoId}`, error);
+      }
     }
   };
 
@@ -122,28 +264,46 @@ function AlbumPage() {
     setIsYearMonthModalOpen(false);
   };
 
-  const handleConfirmModalClose = () => {
+  const handleConfirmModalClose = async (confirmed) => {
+    if (confirmed) {
+      if (actionType === 'like') {
+        await handleLikeAction(); // '좋아요' 작업 실행
+      } else if (actionType === 'delete') {
+        await handleDeleteAction(); // '삭제' 작업 실행
+      }
+    }
+    
+    // 모달 상태와 선택 모드를 초기화
     setIsConfirmModalOpen(false);
     setIsSelectMode(false);
+    setSelectedPhotos([]);
+    setActionType(null);
   };
+  
+
+ 
 
   return (
     <div className="app-container" style={{ position: 'relative', width: '390px', height: '844px', overflow: 'hidden', margin: '0 auto', border: '1px solid #ccc' }}>
 
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'fixed', top: '20px', zIndex: 2 }}>
-      <SearchBar
-          placeholder={selectedButton === 'location' ? '현위치' : '#민지를 통해 민지와 함께 찍은 사진 보기'}
-          icon={searchIcon}
-          onSearch={() => console.log('앨범 페이지에서 검색!')}
-          width="341px"
-          height="44px"
-          zIndex={selectedButton === 'location' ? 10 : 1}  
-          position= 'relative' // 위치별에서 고정
-          top={selectedButton === 'location' ? '20px' : 'auto'}
-          marginLeft = {selectedButton === 'location' ? '16px' : '0px'} 
-          backgroundColor={selectedButton === 'location' ? '#FFFFFF' : '#E9EAEE'}
-          color={selectedButton === 'location' ? '#000000' : '#676F7B'}
-      />
+    <SearchBar
+      placeholder={selectedButton === 'location' ? '현위치' : '#민지를 통해 민지와 함께 찍은 사진 보기'}
+      icon={searchIcon}
+      onSearch={handleSearch}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      value={searchQuery} // searchQuery 상태를 바인딩
+      width="341px"
+      height="44px"
+      zIndex={selectedButton === 'location' ? 10 : 1}  
+      position= 'relative'
+      top={selectedButton === 'location' ? '20px' : 'auto'}
+      marginLeft={selectedButton === 'location' ? '16px' : '0px'} 
+      backgroundColor={selectedButton === 'location' ? '#FFFFFF' : '#E9EAEE'}
+      color={selectedButton === 'location' ? '#000000' : '#676F7B'}
+    />
+
+
 
 
 
@@ -179,7 +339,7 @@ function AlbumPage() {
           ) : (
             <>
               <Button text="선택" onClick={handleSelectButtonClick} backgroundColor="#C7C9CE" borderRadius="30px" width="57px" height="33px" boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)" color="#4B515A" fontSize="14px" marginLeft="121px" />
-              <Button text="추가" onClick={() => console.log('추가 버튼 클릭')} backgroundColor="#C7C9CE" borderRadius="30px" width="57px" height="33px" boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)" color="#4B515A" fontSize="14px" marginLeft="8px" />
+              <Button text="추가" onClick={() => navigate('/AddPhoto')} backgroundColor="#C7C9CE" borderRadius="30px" width="57px" height="33px" boxShadow="3px 3px 10px rgba(0, 0, 0, 0.25)" color="#4B515A" fontSize="14px" marginLeft="8px" />
             </>
           )}
         </div>
@@ -188,26 +348,61 @@ function AlbumPage() {
 
 
       
-      {selectedButton === 'location' ? (
-        <KakaoMap source="album" />
+    {selectedButton === 'location' ? (
+         <>
+         <KakaoMap source="album" />
+         {/* 카카오맵 위에 오버레이로 표시될 Photo들 */}
+         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+           <div style={{ position: 'relative', top: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+             {displayPhotos.map((photo) => (
+               <Photo 
+                 key={photo.id}
+                 photoId={photo.id}
+                 photoUrl={photo.url}
+                 isLiked={photo.photo_like}
+                 altText={`사진 ${photo.id}`}
+                 style={{
+                   marginBottom: '10px',
+                   boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)',
+                 }}
+               />
+             ))}
+           </div>
+         </div>
+         {/* 부스 선택 버튼들 */}
+         <div style={{ position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '10px' }}>
+           <Button text="부스 1" onClick={() => handleBoothClick('booth1')} />
+           <Button text="부스 2" onClick={() => handleBoothClick('booth2')} />
+         </div>
+       </>
       ) : (
-        <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingTop : '121px', paddingBottom: '100px', marginLeft: '94px'  }}>
+        <div className="scrollable-content" style={{ overflowY: 'auto', height: 'calc(100% - 220px)', paddingTop : '121px', paddingBottom: '100px', marginLeft: '16px' }}>
           {photos.length === 0 ? (
-            <>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
               <EmptyIcon style={{ marginTop: '121px' }} />
-              <Text fontSize="18px" color="#676F7B" textAlign="center" fontWeight="500" marginTop="23px" marginLeft="30px">
+              <Text fontSize="18px" color="#676F7B" textAlign="center" fontWeight="500" marginTop="23px">
                 사진을 채워보세요
               </Text>
-            </>
+            </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 174px)', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 174px)', gap: '10px', paddingBottom :'60px' }}>
               {photos.map((photo) => (
-                <Photo key={photo.id} photoUrl={photo.url} altText={`사진 ${photo.id}`} isSelectMode={isSelectMode} isSelected={selectedPhotos.includes(photo.id)} onClick={() => togglePhotoSelection(photo.id)} />
+                <Photo 
+                  key={photo.id} 
+                  photoId={photo.id}  // 각 사진의 photoId를 전달
+                  photoUrl={photo.url} 
+                  isLiked={photo.photo_like}
+                  altText={`사진 ${photo.id}`} 
+                  isSelectMode={isSelectMode} 
+                  isSelected={selectedPhotos.includes(photo.id)} 
+                  onClick={() => togglePhotoSelection(photo.id)} 
+                />
               ))}
             </div>
           )}
         </div>
       )}
+
 
       {!isSelectMode && (
         <div className="buttonGroup" style={{ display: 'flex', position: 'fixed', left: '50%', top: '700px', transform: 'translateX(-50%)', width: '288px', height: '42px', backgroundColor: '#C7C9CE', opacity: '80%', borderRadius: '30px', boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)', zIndex: 20 }}>
@@ -232,8 +427,20 @@ function AlbumPage() {
       </div>
 
       {isConfirmModalOpen && (
-        <ConfirmModal message={confirmMessage} onConfirm={handleConfirmModalClose} onCancel={() => setIsConfirmModalOpen(false)} style={{ zIndex: 1000, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+        <ConfirmModal
+          message={confirmMessage}
+          onConfirm={() => handleConfirmModalClose(true)} // 함수 호출이 아닌 함수 참조 전달
+          onCancel={() => handleConfirmModalClose(false)}
+          style={{
+            zIndex: 1000,
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
       )}
+
       {isYearMonthModalOpen && (
         <YearMonthModal onClose={handleYearMonthModalClose} onConfirm={handleYearMonthConfirm} />
       )}

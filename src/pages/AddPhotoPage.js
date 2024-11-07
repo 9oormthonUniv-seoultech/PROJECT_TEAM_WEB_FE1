@@ -20,12 +20,14 @@ function AddPhotoPage() {
   const [selectedOption, setSelectedOption] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingId, setLoadingId] = useState('');
+
   const [isPostLoading, setIsPostLoading] = useState(false);
   const [isConfirmationPage, setIsConfirmationPage] = useState(false);
   const [uploadedPhoto, setUploadedPhoto] = useState(null);
   const [photoTempId, setPhotoTempId] = useState(null);
   const [photoTempUrl, setPhotoTempUrl] = useState(null);
   const [photoboothId, setPhotoboothId] = useState(null);
+  const [photoboothName, setPhotoboothName] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [year, setYear] = useState('');
   const [month, setMonth] = useState('');
@@ -37,6 +39,9 @@ function AddPhotoPage() {
       const formData = new FormData();
       formData.append('user_id', userId);
       formData.append('file', file);
+
+      setLoading(true);
+      setLoadingId('upload');
   
       try {
         console.log('전송할 user_id:', userId);
@@ -67,6 +72,10 @@ function AddPhotoPage() {
         setIsPostLoading(true);
       } catch (error) {
         console.error('이미지 업로드 실패:', error);
+      } finally {
+        setTimeout(() => {
+          setLoading(false); // 로딩 종료
+        }, 2000);
       }
     } else {
       console.log('이미지 파일 또는 user_id가 누락되었습니다.');
@@ -96,6 +105,7 @@ function AddPhotoPage() {
         const result = response.data[0]; // 응답 배열의 첫 번째 요소 사용
         if (result) {
           setPhotoboothId(result.id);
+          setPhotoboothName(result.name); 
           console.log('photoboothId 설정 완료:', result.id);
           console.log('검색된 photobooth 이름:', result.name);
         } else {
@@ -166,7 +176,7 @@ function AddPhotoPage() {
         });
         console.log('저장 요청 데이터:', { date: formattedDate, photobooth_id: photoboothId });
         console.log('저장 응답:', response.data);
-        navigate('/NotePhoto', { state: { photoTempUrl: photoTempUrl, photoTempId : photoTempId } });
+        navigate('/NotePhoto', { state: { photoTempUrl: photoTempUrl, photoTempId : photoTempId, photoboothId : photoboothId, photoboothName : photoboothName, formattedDate : formattedDate } });
       } catch (error) {
         console.error('저장 요청 실패:', error);
       }
@@ -202,35 +212,38 @@ function AddPhotoPage() {
             <Button 
               text="QR 인식" 
               onClick={handleQrClick}
-              borderRadius= "8px"
+              borderRadius="8px"
               width="267px"
               height="90px"
               backgroundColor={selectedOption === 'qr' ? "#E1E0FF" : "transparent"}
               color={selectedOption === 'qr' ? "#5453EE" : "#C7C9CE"}
               fontSize="16px"
               position="relative"
-              icon= {selectedOption === 'qr' ? clickedCircleIcon : circleIcon}
+              icon={selectedOption === 'qr' ? clickedCircleIcon : circleIcon}
               iconMargin="12px" 
               boxShadow="none"
-              border= {selectedOption === 'qr' ? "1px solid #5453EE"  : "1px solid #C7C9CE"}
+              border={selectedOption === '' || selectedOption === 'album' ? "1px solid #C7C9CE" : "1px solid #5453EE"} 
+              borderBottom={selectedOption === '' || selectedOption === 'album' ? "1px solid #C7C9CE" : "1px solid #5453EE"} 
             />
-
             <Button 
               text="내 사진첩 불러오기" 
               onClick={handleAlbumClick}
-              borderRadius= "8px"
+              borderRadius="8px"
               width="267px"
               height="90px"
               backgroundColor={selectedOption === 'album' ? "#E1E0FF" : "transparent"}
               color={selectedOption === 'album' ? "#5453EE" : "#C7C9CE"}
               fontSize="16px"
               position="relative"
-              icon= {selectedOption === 'album' ? clickedCircleIcon : circleIcon}
+              icon={selectedOption === 'album' ? clickedCircleIcon : circleIcon}
               iconMargin="12px" 
               boxShadow="none"
-              border={selectedOption === 'album' ? "1px solid #5453EE"  : "1px solid #C7C9CE"}
+              border={selectedOption === '' || selectedOption === 'qr' ? "1px solid #C7C9CE" : "1px solid #5453EE"}
+              borderBottom={selectedOption === '' || selectedOption === 'qr' ? "1px solid #C7C9CE" : "1px solid #5453EE"} 
               marginTop="22px"
             />
+
+
 
             <Button 
               text="다음"
@@ -326,7 +339,7 @@ function AddPhotoPage() {
         )
       )}
 
-      {showQrOverlay && <OverlayQrReader onClose={closeOverlay} onConfirm={handleConfirm} />}
+      {showQrOverlay && <OverlayQrReader onClose={closeOverlay} onConfirm={handleConfirm} userId={userId}/>}
       {loading && <LoadingOverlay id={loadingId} />}
     </div>
   );

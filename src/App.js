@@ -7,8 +7,8 @@ import LoginPage from  './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import AlbumPage from './pages/AlbumPage';
 import AlbumBoothSelectionPage from './pages/AlbumBoothSelectionPage';
-import AlbumLocationPage from './pages/AlbumLocationPage';
 import MyPage from './pages/MyPage';
+import DetailMypage from './pages/DetailMyPage'
 import AddPhoto from './pages/AddPhotoPage';
 import NotePhoto from './pages/NotePhotoPage';
 import ShareSuccess from  './pages/ShareSuccessPage';
@@ -27,8 +27,8 @@ function App() {
             <Route path="/Home" element={<HomePage />} />
             <Route path="/Album" element={<AlbumPage />} />
             <Route path="/Album-BoothSelection" element={<AlbumBoothSelectionPage />} />
-            <Route path="/Album-Location" element={<AlbumLocationPage />} />
             <Route path="/My" element={<MyPage />} />
+            <Route path="/DetailMy" element={<DetailMypage />} />
             <Route path="/AddPhoto" element={<AddPhoto />} />
             <Route path="/NotePhoto" element={<NotePhoto />} />
             <Route path="/ShareSuccess" element={<ShareSuccess />} />
