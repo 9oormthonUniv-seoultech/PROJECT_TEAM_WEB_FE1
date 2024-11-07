@@ -3,7 +3,7 @@ import Text from './Text';
 import cameraIcon from '../../assets/camera-icon.svg';
 import thunderIcon from '../../assets/thunder-icon.svg';
 import { ReactComponent as BackIcon } from '../../assets/x-icon.svg';
-import { Qrscanner } from 'react-qr-scanner';
+import { QrScanner } from 'react-qr-scanner';
 import Button from './Button';
 import axios from 'axios';
 
@@ -105,17 +105,10 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) 
           marginTop: '40px',
         }}
       >
-        <Qrscanner
+        <QrScanner
           delay={300}
           onError={handleQrError}
-          onResult={(result, error) => {
-            if (!!result) {
-              handleQrScan(result?.text);
-            }
-            if (!!error) {
-              handleQrError(error);
-            }
-          }}
+          onScan={handleQrScan} // onResult 대신 onScan 사용
           style={{ width: '100%', height: '100%' }}
         />
       </div>
