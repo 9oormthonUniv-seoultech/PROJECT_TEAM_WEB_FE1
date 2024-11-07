@@ -20,9 +20,10 @@ function HomePage() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [mapCenter, setMapCenter] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [clickedMarkerIndex, setClickedMarkerIndex] = useState(null);
+  const [mapCenter, setMapCenter] = useState(null);
+  const [distanceToCenter, setDistanceToCenter] = useState(null); // 추가된 상태
 
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -50,48 +51,78 @@ function HomePage() {
 
   // 사용자 위치 가져오기
   useEffect(() => {
+    setBrands(['포토이즘박스', '하루필름', '셀픽스', '포토매틱', '인생네컷', '포토시그니처', '포토이즘컬러드', '포토그레이', '비룸']);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
+          const currentLocation = { lat: latitude, lng: longitude };
+          setUserLocation(currentLocation);
+          setMapCenter(currentLocation); // center를 사용자의 위치로 설정
         },
-        (error) => console.error("사용자 위치를 가져올 수 없습니다:", error),
+        (error) => console.error("Unable to retrieve location:", error),
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     }
   }, []);
 
-  const handleMarkerClick = async (location) => {
-    if (location && userLocation) {
-      const distance = calculateDistance(userLocation.lat, userLocation.lng, location.lat, location.lng);
-      const updatedLocationInfo = { ...location, distance: distance.toFixed(0) };
-  
-      // 추가 데이터 가져오기
-      try {
-        const response = await fetch(`/api/review/boothphoto/${location.id}`);
-        const reviewData = await response.json();
-  
-        console.log("추가 데이터 응답:", reviewData);  // 응답 데이터를 콘솔에 출력하여 확인
-  
-        // reviewData를 locationInfo에 추가
-        setSelectedLocation({
-          ...updatedLocationInfo,
-          rating: reviewData.rating,
-          reviewPhotos: reviewData.reviewPhotos,
-          totalImageCount: reviewData.totalImageCount,
-        });
-      } catch (error) {
-        console.error("추가 데이터 불러오기 실패:", error);
-        setSelectedLocation(updatedLocationInfo);
-      }
-  
-      setIsBottomSheetOpen(true);
-    } else {
-      setIsBottomSheetOpen(false);
-      setSelectedLocation(null);
+  useEffect(() => {
+    if (userLocation && mapCenter) {
+      const distance = calculateDistance(
+        userLocation.lat,
+        userLocation.lng,
+        mapCenter.lat,
+        mapCenter.lng
+      ).toFixed(0);
+      setDistanceToCenter(distance);
+    }
+  }, [userLocation, mapCenter]);
+
+  const fetchLocations = async (latitude, longitude) => {
+    try {
+      const response = await fetch(`/api/map?latitude=${latitude}&longitude=${longitude}`);
+      const data = await response.json();
+
+      const newLocations = data.photobooths.map(booth => ({
+        id: booth.id,
+        name: booth.name,
+        lat: booth.latitude,
+        lng: booth.longitude,
+        brand: booth.brand,
+        rating: booth.rating,
+        imageUrl: `/images/${booth.brand}.png`,
+      }));
+      
+      setSearchResults(newLocations);
+    } catch (error) {
+      console.error("데이터 가져오기 실패:", error);
     }
   };
+
+  const handleMarkerClick = (boothId, boothName, boothLat, boothLng) => {
+    console.log("클릭된 마커 ID:", boothId); // 클릭된 마커 ID 확인
+    console.log("클릭된 마커 Latitude:", boothLat); // 클릭된 마커 위도 확인
+    console.log("클릭된 마커 Longitude:", boothLng);
+    console.log("클릭된 마커 boothName:", boothName);
+  
+    setClickedMarkerIndex(boothId); 
+    setIsBottomSheetOpen(false);  // BottomSheet를 닫기 전에 잠깐 닫음
+    setTimeout(() => {             // 100ms 후에 다시 열림
+      setIsBottomSheetOpen(true);
+    }, 100);
+  
+    // API 조회 없이 데이터를 설정
+    setSelectedLocation({
+      boothId: boothId,
+      boothName: boothName,
+     
+      boothLat: boothLat,
+      boothLng: boothLng
+    });
+  
+    setIsBottomSheetOpen(true); // BottomSheet 열기
+  };
+
   
   
 
@@ -166,52 +197,50 @@ function HomePage() {
 
   const handleSearchIconClick = async () => {
     if (!searchTerm.trim()) {
-      // 검색어가 없을 때 현위치로 지도 이동
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-            
+  
             try {
               const response = await fetch(`/api/map?latitude=${latitude}&longitude=${longitude}`);
               const data = await response.json();
   
               setSearchResults(data.photobooths.map(booth => ({
-                id : booth.id,
-                name : booth.name,
+              
+                id: booth.id,
+                name: booth.name,
                 lat: booth.latitude,
                 lng: booth.longitude,
                 content: booth.name,
                 brand: booth.brand,
-                rating : booth.rating,
+                rating: booth.rating,
                 imageUrl: brandImages[booth.brand] || '/images/default.png',
               })));
   
-              setMapCenter({ lat: latitude, lng: longitude });
+              setMapCenter({ lat: latitude, lng: longitude });  // center 업데이트
             } catch (error) {
               console.error("현위치 요청 실패:", error);
             }
-          },
-          (err) => console.error('사용자 위치를 가져올 수 없습니다:', err),
-          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+          }
         );
       }
     } else {
-      // 검색어가 있을 때 검색 API 호출
+      // 검색어가 있을 때
       try {
         const response = await fetch(`/api/map/search?searchTerm=${encodeURIComponent(searchTerm)}`);
         const data = await response.json();
   
         setSearchResults(data.photobooths.map(booth => ({
+          id: booth.id,
           lat: booth.latitude,
           lng: booth.longitude,
-          content: booth.name,
           brand: booth.brand,
           imageUrl: brandImages[booth.brand] || '/images/default.png',
         })));
   
-        if (data.place_name && data.photobooths.length > 0) {
+        if (data.photobooths.length > 0) {
           setMapCenter({ 
             lat: data.photobooths[0].latitude, 
             lng: data.photobooths[0].longitude 
@@ -306,8 +335,9 @@ function HomePage() {
 
       <BottomSheet 
         isOpen={isBottomSheetOpen} 
-        onClose={() => setIsBottomSheetOpen(false)} 
+        onClose={closeBottomSheet} 
         locationInfo={selectedLocation} 
+        userLocation={userLocation} 
       />
      
 

@@ -1,5 +1,6 @@
 // BoothReviewPage.js
 import React, { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import HeaderBar from '../components/js/HeaderBar'; // HeaderBar 컴포넌트 가져오기
 import { ReactComponent as HeartIcon } from '../assets/heart-icon.svg';
 import Button from '../components/js/Button';
@@ -24,9 +25,17 @@ import noShine from '../assets/booth-review/no-shine-icon.svg';
 
 
 const BoothReviewPage = () => {
-  const boothName = '하루필름 강남점';
-  const location = '서울특별시 강남구 역삼동 123-45';
+  const location = useLocation();
   const distance = '345m';
+  const boothId = location.state?.boothId;
+  const boothName = location.state?.boothName;
+  console.log("boothId ?", boothId);
+  console.log("boothName ?", boothName);
+  const location2 = '서울특별시 강남구 역삼동 123-45';
+  
+
+  // Log boothId to verify it's being received
+  console.log("Received boothId:", boothId);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const imageSliderRef = useRef(null);
@@ -86,58 +95,86 @@ const BoothReviewPage = () => {
   };
 
   return (
-    <div className="booth-review-page">
+    <div className="app-container">
       {/* HeaderBar */}
       <HeaderBar 
-        title="하루필름 혜화역점"
+        title={boothName}
         showBackButton={true}
         showCloseButton={false}
         backgroundColor="#ffffff"
         buttonColor="#171D24"
       />
+      <div className='scrollable-content'>
 
       {/* 사진 슬라이드 */}
-      <div className="scroll-container" ref={imageSliderRef} style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory' }} onScroll={handleScroll}>
+      {/* 사진 슬라이드 */}
+      <div 
+        className="scrollable-content-x" 
+        ref={imageSliderRef} 
+        style={{ position: 'relative', display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory' }} 
+        onScroll={handleScroll}
+      >
         {[1, 2, 3, 4].map((_, index) => (
           <div
             key={index}
             className="slide"
-            style={{ minWidth: '100%', height: '300px', backgroundColor: '#f0f0f0', scrollSnapAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            style={{ 
+              minWidth: '100%', 
+              height: '300px', 
+              backgroundColor: '#f0f0f0', 
+              scrollSnapAlign: 'center', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              position: 'relative' // 슬라이드 내부에 인디케이터 위치를 설정하기 위해 추가
+            }}
           >
             <img
               src={`https://via.placeholder.com/300x300?text=Image+${index + 1}`}
               alt={`슬라이드 이미지 ${index + 1}`}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
+            
+            {/* 슬라이드 인디케이터 */}
+            <div 
+              className="slider-indicator" 
+              style={{ 
+                position: 'absolute', 
+                bottom: '10px', // 슬라이드 내부 하단에 고정
+                left: '50%',
+                transform: 'translateX(-50%)', // 중앙에 위치하도록 조정
+                display: 'flex', 
+                zIndex: 1 
+              }}
+            >
+              {[1, 2, 3, 4].map((_, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleIndicatorClick(index)}
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: currentSlide === index ? '#5453EE' : '#ffffff',
+                    boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
+                    margin: '0 9px',
+                    cursor: 'pointer',
+                  }}
+                />
+              ))}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* 슬라이드 인디케이터 */}
-      <div className="slider-indicator" style={{ display: 'flex', justifyContent: 'center', position: 'absolute', bottom: '15px', width: '100%', zIndex: 1 }}>
 
-        {[1, 2, 3, 4].map((_, index) => (
-          <div
-            key={index}
-            onClick={() => handleIndicatorClick(index)}
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: currentSlide === index ? '#5453EE' : '#ffffff',
-              boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
-              margin: '0 9px',
-              cursor: 'pointer',
-            }}
-          />
-        ))}
-      </div>
+      
 
       {/* 포토부스 정보 및 길찾기 버튼 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '19px', padding: '0 16px' }}>
         <div>
           <p style={{ fontSize: '16px', fontWeight: '600', margin: '0' }}>{boothName}</p>
-          <p style={{ fontSize: '12px', color: '#676F7B', margin: '8px 0' }}>{location}</p>
+          <p style={{ fontSize: '12px', color: '#676F7B', margin: '8px 0' }}>{location2}</p>
           <p style={{ fontSize: '12px', color: '#676F7B', margin: '5px 0' }}>현재 위치로부터 {distance}</p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -206,10 +243,10 @@ const BoothReviewPage = () => {
 
 
       {/* 탭에 따른 내용 */}
-      <div className='scroll-container-y' style={{  marginTop: '23px', height: 'calc(100vh - 500px)', overflowY: 'auto' }}>
+      <div  style={{  marginTop: '23px', height: 'calc(100vh - 500px)'  }}>
    
          {selectedTab === 'home' && (
-          <div style={{paddingLeft: '17px'}}>
+          <div   style={{paddingLeft: '17px'}}>
             <p style={{ fontSize: '18px', fontWeight: '600' }}>부스 만족도</p>
             
             {/* 별점과 아이콘이 나란히 표시 */}
@@ -251,8 +288,9 @@ const BoothReviewPage = () => {
           </div>
         )}
         {selectedTab === 'review' && (
-          <div>
-            <div style={{padding : "0px 17px"}}>
+      
+            <div>
+            <div  style={{padding : "0px 17px"}}>
               {/* 상단 텍스트 */}
               <Text fontSize="18px" color="#171D24" fontWeight="600" marginBottom="31px">
                 부스는 이런 점이 좋았어요
@@ -292,12 +330,10 @@ const BoothReviewPage = () => {
                   imageCount={review.imageCount}
                 />
               ))}
-          </div>
-           
-
-          </div>
-          
-
+            </div>
+  
+        </div>
+              
         )}
         {selectedTab === 'photo' && (
           <div>
@@ -314,6 +350,7 @@ const BoothReviewPage = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

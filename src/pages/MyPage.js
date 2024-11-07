@@ -29,6 +29,7 @@ const MyPage = () => {
   const [favoritePhotos, setFavoritePhotos] = useState([]);
   const [selectedTab, setSelectedTab] = useState('booth'); 
   const [boothVisits, setBoothVisits] = useState([]);
+  const [likedBooths, setLikedBooths] = useState([]);
 
   
   const handleMouseDown = (e) => {
@@ -65,7 +66,10 @@ const MyPage = () => {
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
       }
+
+      
     };
+
 
     const fetchReviews = async () => {
       try {
@@ -99,6 +103,19 @@ const MyPage = () => {
         }
       }
     };
+    const fetchBoothLikes = async () => {
+      try {
+        const response = await axios.get(`/api/user/${userId}/booth-like`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        setLikedBooths(response.data);
+      } catch (error) {
+        console.error("찜해둔 부스 데이터를 가져오는 데 실패했습니다:", error);
+      }
+    };
+    fetchBoothLikes();
 
     fetchUserProfile();
     fetchReviews();
@@ -142,6 +159,10 @@ const MyPage = () => {
 
   const handleFavoriteClick = () => {
     setSelectedTab('favorite'); // 즐겨찾기 탭 선택
+  };
+
+  const handleReviewClick = (boothId, boothName) => {
+    navigate('/Review', { state: { boothId, boothName } });
   };
 
 
@@ -273,24 +294,28 @@ const MyPage = () => {
           </div>
 
           {/* 최근 2개의 리뷰 표시 */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '13px', marginLeft: '16px', marginRight: '16px' }}>
+            {/* 최근 2개의 리뷰 표시 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '13px', marginLeft: '16px', marginRight: '16px' }}>
               {recentReviews.length > 0 ? (
-                recentReviews.map((review) => (
+                recentReviews.slice(-2).map((review) => (
                   <div key={review.review_id} style={{ width: '175px', height: '175px', position: 'relative' }}>
                     <img
                       src={review.image}
-                      alt={`리뷰 이미지 ${review.review_id}`}
+                      
                       style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }}
                     />
-                    <Text fontSize="12px" color="#FFFFFF" fontWeight="400" position="absolute" top="10px" right="10px" zIndex="10">
-                      {new Date(review.date).toLocaleDateString()}
-                    </Text>
-                    <Text fontSize="12px" color="#FFFFFF" fontWeight="400" position="absolute" bottom="39px" left="10px" zIndex="10" icon={MarkerIcon}>
-                      {review.photobooth_name}
-                    </Text>
-                    <Text fontSize="12px" color="#FFFFFF" fontWeight="400" position="absolute" bottom="17px" left="10px" zIndex="10">
-                      ⭐ {review.rating}
-                    </Text>
+                    
+                      <Text fontSize="12px" color="#FFFFFF" fontWeight="400" position="absolute" top="10px" right="10px" zIndex="10">
+                        {new Date(review.date).toLocaleDateString()}
+                      </Text>
+                      <Text fontSize="12px" color="#FFFFFF" fontWeight="400" position="absolute" bottom="39px" left="10px" zIndex="10" icon={MarkerIcon}>
+                        {review.photobooth_name}
+                      </Text>
+                      <Text fontSize="12px" color="#FFFFFF" fontWeight="400" position="absolute" bottom="17px" left="10px" zIndex="10">
+                        ⭐ {review.rating}
+                      </Text>
+
+                
                   </div>
                 ))
             ) : (
@@ -328,78 +353,62 @@ const MyPage = () => {
               icon={NextIcon}
               iconPosition="right"
               marginRight="16px"
-              onClick={() => alert('찜해둔 부스 더보기 클릭!')}
+              onClick={() => navigate('/DetailMy', { state: { type: 'booth', data: likedBooths } })}
             />
           </div>
 
           {/* 부스 정보 칸 리스트 (가로 스크롤 가능) */}
-          <div className='scrollable-content-x'
-            ref={scrollRef}
-            style={{
-              display: 'flex', 
-              overflowX: 'auto', // 가로 스크롤 활성화
-              gap: '8px', 
-              marginTop: '12px',
-              cursor: isDragging ? 'grabbing' : 'grab',
-            }}
-          >
-            {/* 부스 정보 칸 1 */}
-            <div style={{ display: 'flex', width: '292px', height: '110px', borderRadius: '10px', backgroundColor: '#E9EAEE', marginLeft : "16px", alignItems: 'center', flexShrink: 0 }}>
+          <div
+              className="scrollable-content-x"
+              ref={scrollRef}
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                gap: '8px',
+                marginTop: '12px',
+                cursor: isDragging ? 'grabbing' : 'grab',
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseUp}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+            >
+        {likedBooths.length > 0 ? (
+          likedBooths.map((booth) => (
+            <div key={booth.photobooth_id} style={{ display: 'flex', width: '292px', height: '110px', borderRadius: '10px', backgroundColor: '#E9EAEE', alignItems: 'center', marginLeft: "16px", flexShrink: 0 }}>
               <img 
-                src="https://via.placeholder.com/80" 
-                alt="부스 이미지 1" 
+                src={booth.photobooth_image?.image_url || "https://via.placeholder.com/80"} 
+                alt={`${booth.photobooth_name} 이미지`}
                 style={{ width: '80px', height: '80px', borderRadius: '4px', marginLeft:'10px', objectFit: 'cover' }}
               />
               <div style={{ marginLeft: '20px', flex: 1 }}>
                 <Text fontSize="14px" color="#171D24" fontWeight="500">
-                  하루필름 강남점
+                  {booth.photobooth_name}
                 </Text>
                 <Text fontSize="14px" color="#373D49" fontWeight="600" marginTop="4.5px" icon={StarIcon}>
-                  4.8
+                  {booth.rating}
                 </Text>
-                <div style={{ display :'flex', marginTop :"10px"}}>
-                  <Text fontSize="12px" color="#676F7B" fontWeight="400" backgroundColor="#FFFFFF" borderRadius="24px" padding="8px 15px" >
-                    # 선명한 화질
+                <div style={{ display: 'flex', marginTop: "10px" }}>
+                  <Text fontSize="12px" color="#676F7B" fontWeight="400" backgroundColor="#FFFFFF" borderRadius="24px" padding="8px 15px">
+                    #{booth.top_keyword}
                   </Text>
                   <Text fontSize="12px" color="#676F7B" fontWeight="400" backgroundColor="#FFFFFF" borderRadius="24px" padding="6px 12px" marginLeft="2px">
-                    +3
+                    +{booth.keyword_count}
                   </Text>
-                  <HeartIcon style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft:"6.5px" }} />
+                  <HeartIcon style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft: "6.5px" }} />
                 </div>
               </div>
-              
             </div>
-
-            {/* 부스 정보 칸 2 */}
-            <div style={{ display: 'flex', width: '292px', height: '110px', borderRadius: '10px', backgroundColor: '#E9EAEE', alignItems: 'center', flexShrink: 0 }}>
-              <img 
-                src="https://via.placeholder.com/80" 
-                alt="부스 이미지 1" 
-                style={{ width: '80px', height: '80px', borderRadius: '4px', marginLeft:'10px', objectFit: 'cover' }}
-              />
-              <div style={{ marginLeft: '20px', flex: 1 }}>
-                <Text fontSize="14px" color="#171D24" fontWeight="500">
-                  하루필름 강남점
-                </Text>
-                <Text fontSize="14px" color="#373D49" fontWeight="600" marginTop="4.5px" icon={StarIcon}>
-                  4.8
-                </Text>
-                <div style={{ display :'flex', marginTop :"10px"}}>
-                  <Text fontSize="12px" color="#676F7B" fontWeight="400" backgroundColor="#FFFFFF" borderRadius="24px" padding="8px 15px" >
-                    # 선명한 화질
-                  </Text>
-                  <Text fontSize="12px" color="#676F7B" fontWeight="400" backgroundColor="#FFFFFF" borderRadius="24px" padding="6px 12px" marginLeft="2px">
-                    +3
-                  </Text>
-                  <HeartIcon style={{ width: '30px', height: '30px', cursor: 'pointer', marginLeft:"6.5px" }} />
-                </div>
-              </div>
-              
-            </div>
-
-            {/* 부스 정보 칸 추가 가능 */}
-            {/* 더 많은 부스 정보를 추가하고 싶으면 동일한 방식으로 추가 */}
+          ))
+        ) : (
+          // 찜해둔 부스가 없을 경우 빈 네모칸 표시
+          <div style={{ display: 'flex', width: '290px', height: '110px', borderRadius: '10px', backgroundColor: '#E9EAEE', alignItems: 'center', justifyContent: 'center', marginLeft: '16px', flexShrink: 0 }}>
+            <Text fontSize="14px" color="#676F7B" fontWeight="500">
+              찜해둔 부스가 없습니다.
+            </Text>
           </div>
+        )}
+      </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '22px', marginLeft :'16px'}}>
             <Text fontSize="18px" color="#171D24" fontWeight="600">
@@ -435,7 +444,7 @@ const MyPage = () => {
             {boothVisits.map((visit, index) => (
           <div key={index} style={{ display: 'flex', width: '292px', height: '110px', borderRadius: '10px', backgroundColor: '#E9EAEE', alignItems: 'center', marginLeft:"16px", flexShrink: 0 }}>
             <img 
-              src="https://via.placeholder.com/80" 
+              src={visit.photo_url || "https://via.placeholder.com/80"} 
               alt={`부스 이미지 ${index + 1}`} 
               style={{ width: '80px', height: '80px', borderRadius: '4px', marginLeft:'10px', objectFit: 'cover' }}
             />
@@ -460,7 +469,7 @@ const MyPage = () => {
                 boxShadow="none"
                 icon={EditIcon}
                 iconPosition="right"
-                onClick={() => alert('리뷰 작성 클릭!')}
+                onClick={() => handleReviewClick(visit.photobooth_id, visit.photobooth_name)}
               />
             </div>
           </div>

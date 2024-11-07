@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Map, MapMarker, CustomOverlayMap } from 'react-kakao-maps-sdk';
 import CustomMarkerOverlay from './CustomMarkerOverlay';
 import ClickedCustomMarker from './ClickedCustomMarker';
+import currentMarker from '../../assets/current-marker.svg';
 
 const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: propLocations = [], center, onMarkerClick, userLocation }) => {
   const [clickedMarkerIndex, setClickedMarkerIndex] = useState(null);
   const [locations, setLocations] = useState([]);
+  const [markerPosition, setMarkerPosition] = useState(userLocation); // 초기 위치 설정
+
+  const defaultLocation = { lat: 37.6329741, lng: 127.0798802 }; // 서울 기본 좌표
 
   const brandImages = {
     '포토이즘박스': '/images/photoism.png',
@@ -19,56 +23,35 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
     '비룸': '/images/broom.png',
   };
 
-  
-
   useEffect(() => {
-    if (!propLocations.length && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          await fetchLocations(lat, lon);
-        },
-        (err) => console.error('사용자 위치를 가져올 수 없습니다:', err),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    } else if (propLocations.length) {
-      setLocations(propLocations);
+    if (center) {
+      fetchLocations(center.lat, center.lng);
+      setMarkerPosition(center); // center가 업데이트될 때마다 marker 위치 업데이트
     }
-  }, [propLocations]);
+  }, [center]);
 
-  const fetchLocations = async (latitude, longitude, brand = '') => {
+  const fetchLocations = async (latitude, longitude) => {
     try {
-      const response = await fetch(`/api/map?latitude=${latitude}&longitude=${longitude}&brand=${brand}`);
+      const response = await fetch(`/api/map?latitude=${latitude}&longitude=${longitude}`);
       const data = await response.json();
       const newLocations = data.photobooths.map((booth) => ({
         id: booth.id,
+        name: booth.name,
         lat: booth.latitude,
         lng: booth.longitude,
-        content: booth.name,
         brand: booth.brand,
-        imageUrl: brandImages[booth.brand] || '/images/default.png',
         rating: booth.rating,
+        imageUrl: brandImages[booth.brand] || '/images/default.png',
       }));
       setLocations(newLocations);
-
-      if (onBrandsUpdate) {
-        const uniqueBrands = [...new Set(newLocations.map((location) => location.brand))];
-        onBrandsUpdate(uniqueBrands);
-      }
     } catch (error) {
       console.error("데이터를 가져오는 데 실패했습니다:", error);
     }
   };
 
-  const handleMarkerClick = (location) => {
-    if (clickedMarkerIndex === location.id) {
-      setClickedMarkerIndex(null); // 마커 클릭 해제
-      onMarkerClick(null); // BottomSheet 닫기
-    } else {
-      setClickedMarkerIndex(location.id); // 새 마커 클릭 설정
-      onMarkerClick(location); // BottomSheet 열기
-    }
+  const handleMarkerClick = (boothId, boothName, boothLat, boothLng) => {
+    setClickedMarkerIndex(boothId); // 클릭된 마커 상태 업데이트
+    onMarkerClick(boothId, boothName, boothLat, boothLng); // HomePage로 전달
   };
 
   const filteredLocations = selectedBrands.length > 0
@@ -76,37 +59,35 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
     : locations;
 
   return (
-    <div style={styles.mapContainer}>
-      <Map center={center || userLocation || { lat: 37.6329741, lng: 127.0798802 }} style={styles.map} level={4}>
+    <div style={{ width: '100%', height: '100%' }}>
+      <Map center={center || defaultLocation} style={{ width: '100%', height: '100%' }} level={4}>
         
-        {/* Center 위치에 기본 마커 표시 */}
-        {center && (
+        {/* 사용자 위치 또는 center 위치에 따라 마커 표시 */}
+        {markerPosition && (
           <MapMarker
-            position={center}
+            position={markerPosition}
             image={{
-              src: 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png', // 카카오 제공 기본 마커 이미지
-              size: { width: 24, height: 35 }
+              src: currentMarker,
+              size: {
+                width: 36,
+                height: 36,
+              },
             }}
           />
         )}
-
-        {/* 검색 결과 마커 */}
+        
+        {/* 부스 위치 마커들 */}
         {filteredLocations.map((location) => (
-          <CustomOverlayMap
-            key={location.id}
-            position={{ lat: location.lat, lng: location.lng }}
-          >
-            {clickedMarkerIndex === location.id ? (
-              <ClickedCustomMarker 
-                imageUrl={location.imageUrl} 
-                onClick={() => handleMarkerClick(location)}
-              />
-            ) : (
-              <CustomMarkerOverlay 
-                imageUrl={location.imageUrl} 
-                onClick={() => handleMarkerClick(location)}
-              />
-            )}
+          <CustomOverlayMap key={location.id} position={{ lat: location.lat, lng: location.lng }}>
+            <CustomMarkerOverlay
+              imageUrl={location.imageUrl}
+              boothName={location.name}
+              boothId={location.id}
+              boothLat={location.lat}
+              boothLng={location.lng}
+              isClicked={clickedMarkerIndex === location.id}
+              onClick={() => handleMarkerClick(location.id, location.name, location.lat, location.lng)}
+            />
           </CustomOverlayMap>
         ))}
       </Map>
@@ -115,6 +96,7 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
 };
 
 export default KakaoMap;
+
 
 const styles = {
   mapContainer: {

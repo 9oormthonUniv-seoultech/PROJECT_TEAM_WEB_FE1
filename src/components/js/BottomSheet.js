@@ -1,9 +1,87 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Text from './Text';
 import { ReactComponent as BarIcon } from '../../assets/bar-icon.svg';
 import starIcon from '../../assets/star-icon.svg';
 
-const BottomSheet = ({ isOpen, onClose, locationInfo }) => {
+const BottomSheet = ({ isOpen, onClose, locationInfo, userLocation }) => {
+  const navigate = useNavigate();
+  const boothId = locationInfo?.boothId;
+  const boothName= locationInfo?.boothName;
+  const boothLat = locationInfo?.boothLat;
+  const boothLng = locationInfo?.boothLng;
+  console.log(boothName);
+
+
+  const [boothData, setBoothData] = useState({
+    rating: 0,
+    topHashtag: [],
+    imageCount: 0,
+    firstImage: '',
+    reviewCount: 0,
+    distance: null,
+  });
+
+  // Calculate distance between two coordinates
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth radius in kilometers
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c * 1000; // Convert to meters
+  };
+
+  useEffect(() => {
+    const fetchBoothData = async () => {
+      console.log("boothId?",boothId)
+      
+      if (boothId) {
+        try {
+          const response = await fetch(`/api/booth/${boothId}`);
+          const data = await response.json();
+          console.log("userLocation 정보 ",userLocation);
+
+          const distance = userLocation
+            ? calculateDistance(userLocation.lat, userLocation.lng, boothLat, boothLng).toFixed(0)
+            : null;
+
+          setBoothData({
+            rating: data.rating,
+            topHashtag: data.topHashtag,
+            imageCount: data.imageCount,
+            firstImage: data.firstImage,
+            reviewCount: data.reviewCount,
+            distance: distance,
+          });
+
+          console.log("Updated boothData:", {
+            rating: data.rating,
+            topHashtag: data.topHashtag,
+            imageCount: data.imageCount,
+            firstImage: data.firstImage,
+            reviewCount: data.reviewCount,
+            distance: distance,
+          });
+        } catch (error) {
+          console.error("데이터 요청 오류:", error);
+        }
+      }
+    };
+
+    fetchBoothData();
+  }, [boothId, boothLat, boothLng, userLocation]);
+
+  const handleContentClick = () => {
+    if (boothId) {
+      console.log("go to ",boothId, boothName);
+      navigate('/BoothReview', { state: { boothId : boothId, boothName : boothName } });
+    }
+  };
+
   return (
     <div 
       style={{
@@ -16,47 +94,62 @@ const BottomSheet = ({ isOpen, onClose, locationInfo }) => {
         borderRadius: '26px 26px 0px 0px',
         boxShadow: '0px -2px 10px rgba(0, 0, 0, 0.1)',
         transition: 'bottom 0.3s ease-in-out',
-        zIndex: '25',
-        display: isOpen ? 'block' : 'none'  // isOpen이 false일 때 완전히 숨김
+        zIndex: 2000,
+        display: isOpen ? 'block' : 'none'
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'center', margin: '18px 0' }}>
-        <BarIcon width="50" height="5" />
+        <BarIcon width="50" height="5"/>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', marginLeft :'16px', marginBottom :'30px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '16px', marginBottom: '30px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          {/* 포토부스 이름과 별점 텍스트 */}
           <div style={{ display: 'flex' }}>
-            <Text fontSize="18px" color="#171D24" fontWeight="600">
-              {locationInfo?.content || '포토 부스 이름'}
+            <button
+              onClick={(e) => { e.stopPropagation(); handleContentClick(); }}
+              style={{
+                fontSize: '18px',
+                color: '#171D24',
+                fontWeight: '600',
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                zIndex: 2000,
+                textAlign: 'left',
+              }}
+            >
+              {boothName || '포토 부스 이름'}
+            </button>
+            <Text fontSize="14px" color="#676F7B" icon={starIcon} marginLeft="10px">
+              {boothData.rating || '0'}
             </Text>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginLeft : '11px' }}>
-              <Text fontSize="14px" color="#373D49" fontWeight="600" icon={starIcon} iconSize="16px" iconMarginRight="1.5px" iconAlt="Star">
-                {locationInfo?.rating || '0.0'}
-              </Text>
-            </div>
           </div>
 
-          {/* 거리와 리뷰 수 텍스트 */}
+          {/* Distance and review count */}
           <div style={{ display: 'flex', marginTop: '5px' }}>
             <Text fontSize="14px" color="#676F7B">
-              {locationInfo?.distance ? `${locationInfo.distance}m ·` : ''} 리뷰 {locationInfo?.totalImageCount || '0'}장
+              {boothData.distance ? `${boothData.distance}m ·` : ''} 리뷰 {boothData.reviewCount || '0'}장
             </Text>
           </div>
 
-          {/* 키워드 텍스트 */}
-          <div style={{ display: 'flex', marginTop: '10px' }}>
-            <Text fontSize="12px" color="#676F7B" backgroundColor="#E9EAEE" borderRadius="24px" padding="8px 20px">
-              깔끔한 소품
-            </Text>
+          {/* Hashtags */}
+          <div style={{ display: 'flex', marginTop: '10px', gap: '5px' }}>
+            {boothData.topHashtag.length > 0 
+              ? boothData.topHashtag.map((hashtag, index) => (
+                  <Text key={index} fontSize="12px" color="#676F7B" backgroundColor="#E9EAEE" borderRadius="24px" padding="8px 20px">
+                    # {hashtag}
+                  </Text>
+                ))
+              : <Text fontSize="12px" color="#676F7B" backgroundColor="#E9EAEE" borderRadius="24px" padding="8px 20px">#가 없어요</Text>
+            }
           </div>
         </div>
 
-        {/* 리뷰 이미지가 들어갈 오른쪽 영역 */}
+        {/* Image with count overlay */}
         <div style={{ position: 'relative', width: '82px', height: '82px', borderRadius: '4px', overflow: 'hidden', marginRight: '24px' }}>
           <img 
-            src={locationInfo?.reviewPhotos?.[0]?.Image || "https://via.placeholder.com/60"} 
+            src={boothData.firstImage || "https://via.placeholder.com/60"} 
             alt="포토부스 리뷰 이미지" 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
@@ -70,7 +163,7 @@ const BottomSheet = ({ isOpen, onClose, locationInfo }) => {
             borderRadius: '24px',
             fontSize: '10px',
           }}>
-            +{locationInfo?.totalImageCount || '0'}
+            +{boothData.imageCount || '0'}
           </div>
         </div>
       </div>
@@ -79,4 +172,3 @@ const BottomSheet = ({ isOpen, onClose, locationInfo }) => {
 };
 
 export default BottomSheet;
-
