@@ -1,6 +1,8 @@
 // BoothReviewPage.js
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import HeaderBar from '../components/js/HeaderBar'; // HeaderBar 컴포넌트 가져오기
 import { ReactComponent as HeartIcon } from '../assets/heart-icon.svg';
 import Button from '../components/js/Button';
@@ -8,11 +10,11 @@ import Text from '../components/js/Text';
 import ReviewBar from '../components/js/ReviewBar';
 import ReviewList from '../components/js/ReviewList';
 import StarIcon from '../components/js/StarIcon';
-import OneStarIcon from '../assets/star-icon/one-star-icon.svg';
-import TwoStarIcon from '../assets/star-icon/two-star-icon.svg';
-import ThreeStarIcon from '../assets/star-icon/three-star-icon.svg';
-import FourStarIcon from '../assets/star-icon/four-star-icon.svg';
-import FiveStarIcon from '../assets/star-icon/five-star-icon.svg';
+import OneStarFaceIcon from '../assets/star-face-icon/one-star-face-icon.svg';
+import TwoStarFaceIcon from '../assets/star-face-icon/two-star-face-icon.svg';
+import ThreeStarFaceIcon from '../assets/star-face-icon/three-star-face-icon.svg';
+import FourStarFaceIcon from '../assets/star-face-icon/four-star-face-icon.svg';
+import FiveStarFaceIcon from '../assets/star-face-icon/five-star-face-icon.svg';
 import variousFrame from '../assets/booth-review/various-frame-icon.svg';
 import cleanBooth from '../assets/booth-review/clean-booth-icon.svg';
 import wideBooth from '../assets/booth-review/wide-booth-icon.svg';
@@ -25,22 +27,33 @@ import noShine from '../assets/booth-review/no-shine-icon.svg';
 
 
 const BoothReviewPage = () => {
+  const { userId } = useAuth(); 
   const location = useLocation();
   const distance = '345m';
   const boothId = location.state?.boothId;
   const boothName = location.state?.boothName;
+  const [reviews, setReviews] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
   console.log("boothId ?", boothId);
   console.log("boothName ?", boothName);
   const location2 = '서울특별시 강남구 역삼동 123-45';
-  
+  const [reviewPhotos, setReviewPhotos] = useState([]); // reviewPhotos 배열을 저장할 상태
 
   // Log boothId to verify it's being received
   console.log("Received boothId:", boothId);
 
   const [currentSlide, setCurrentSlide] = useState(0);
+ 
   const imageSliderRef = useRef(null);
 
   const totalSlides = 4; 
+  const getStarFaceIcon = (rating) => {
+    if (rating < 1.5) return <img src={OneStarFaceIcon} alt="1 star face" />;
+    if (rating < 2.5) return <img src={TwoStarFaceIcon} alt="2 star face" />;
+    if (rating < 3.5) return <img src={ThreeStarFaceIcon} alt="3 star face" />;
+    if (rating < 4.5) return <img src={FourStarFaceIcon} alt="4 star face" />;
+    return <img src={FiveStarFaceIcon} alt="5 star face" />;
+  };
 
   const handleScroll = () => {
     const scrollPosition = imageSliderRef.current.scrollLeft;
@@ -57,30 +70,43 @@ const BoothReviewPage = () => {
     });
     setCurrentSlide(index);
   };
+  const handleHeartClick = async () => {
+    setIsLiked(!isLiked); // 하트 상태 변경
+
+    try {
+      await axios.post('/api/booth', {
+        user_id: userId,        // 현재 사용자 ID
+        photobooth_id: boothId, // 부스 ID
+        isLiked: !isLiked       // 현재 하트 상태
+      });
+      console.log(`Heart icon clicked. New liked status: ${!isLiked}`);
+    } catch (error) {
+      console.error("Failed to send like status:", error);
+      // 요청 실패 시 상태를 원래대로 되돌림
+      setIsLiked(isLiked);
+    }
+  };
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        if (boothId) {
+          const response = await axios.get(`/api/review/boothphoto/${boothId}`);
+          setRating(response.data.rating); // rating 값을 상태에 저장
+          setReviewPhotos(response.data.reviewPhotos); // reviewPhotos 배열을 상태에 저장
+          console.log("Fetched reviews:", response.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      }
+    };
+
+    fetchReviews();
+  }, [boothId]);
 
   
   const totalReview = '567';
-  const reviews = [
-    {
-      profileImage: 'https://via.placeholder.com/40',
-      nickname: '홍길동',
-      date: '2024-10-14',
-      content: '부스가 매우 깔끔하고 다양한 프레임이 있어서 좋았어요!',
-      hashtags: ['깔끔한', '다양한프레임'],
-      boothImage: 'https://via.placeholder.com/100',
-      imageCount : 5
-
-    },
-    {
-      profileImage: 'https://via.placeholder.com/40',
-      nickname: '김철수',
-      date: '2024-10-13',
-      content: '부스 공간이 넓어서 편안하게 촬영할 수 있었습니다.',
-      hashtags: ['넓은공간', '편안한'],
-      boothImage:'https://via.placeholder.com/100',
-      imageCount : 12
-    }
-  ];
+  
 
 
   const [rating, setRating] = useState(0);
@@ -107,65 +133,64 @@ const BoothReviewPage = () => {
       <div className='scrollable-content'>
 
       {/* 사진 슬라이드 */}
-      {/* 사진 슬라이드 */}
       <div 
-        className="scrollable-content-x" 
-        ref={imageSliderRef} 
-        style={{ position: 'relative', display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory' }} 
-        onScroll={handleScroll}
-      >
-        {[1, 2, 3, 4].map((_, index) => (
-          <div
-            key={index}
-            className="slide"
-            style={{ 
-              minWidth: '100%', 
-              height: '300px', 
-              backgroundColor: '#f0f0f0', 
-              scrollSnapAlign: 'center', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              position: 'relative' // 슬라이드 내부에 인디케이터 위치를 설정하기 위해 추가
-            }}
-          >
-            <img
-              src={`https://via.placeholder.com/300x300?text=Image+${index + 1}`}
-              alt={`슬라이드 이미지 ${index + 1}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            
-            {/* 슬라이드 인디케이터 */}
-            <div 
-              className="slider-indicator" 
+          className="scrollable-content-x" 
+          ref={imageSliderRef} 
+          style={{ position: 'relative', display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory' }} 
+          onScroll={handleScroll}
+        >
+          {reviewPhotos.map((photoUrl, index) => (
+            <div
+              key={index}
+              className="slide"
               style={{ 
-                position: 'absolute', 
-                bottom: '10px', // 슬라이드 내부 하단에 고정
-                left: '50%',
-                transform: 'translateX(-50%)', // 중앙에 위치하도록 조정
+                minWidth: '100%', 
+                height: '300px', 
+                backgroundColor: '#f0f0f0', 
+                scrollSnapAlign: 'center', 
                 display: 'flex', 
-                zIndex: 1 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                position: 'relative' 
               }}
             >
-              {[1, 2, 3, 4].map((_, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleIndicatorClick(index)}
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: currentSlide === index ? '#5453EE' : '#ffffff',
-                    boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
-                    margin: '0 9px',
-                    cursor: 'pointer',
-                  }}
-                />
-              ))}
+              <img
+                src={photoUrl}
+                alt={`슬라이드 이미지 ${index + 1}`}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              
+              {/* 슬라이드 인디케이터 */}
+              <div 
+                className="slider-indicator" 
+                style={{ 
+                  position: 'absolute', 
+                  bottom: '10px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex', 
+                  zIndex: 1 
+                }}
+              >
+                {reviewPhotos.map((_, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => handleIndicatorClick(idx)}
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: currentSlide === idx ? '#5453EE' : '#ffffff',
+                      boxShadow: '3px 3px 10px rgba(0, 0, 0, 0.25)',
+                      margin: '0 9px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
 
       
@@ -188,7 +213,37 @@ const BoothReviewPage = () => {
             boxShadow="none"
             onClick={() => alert('길찾기 클릭!')}
           />
-          <HeartIcon style={{ width: '30px', height: '30px', cursor: 'pointer' }} />
+            
+             <button
+              onClick={handleHeartClick}
+              style={{
+                position: 'relative',
+                
+                width: '30.71px',
+                height: '30.71px',
+                backgroundColor: '#fff',
+                borderRadius: '50%',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <svg
+                width="24"
+                height="21"
+                viewBox="0 0 24 21"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M21.8375 2.29583C20.667 1.28935 19.2293 0.79248 17.7979 0.79248C16.3666 0.79248 14.9161 1.30209 13.7647 2.29583C13.3702 2.63982 13.0458 3.04751 12.7595 3.48705L12.4669 3.93296L12.1743 3.48705C11.8944 3.04751 11.5699 2.63345 11.1691 2.29583C10.0177 1.30209 8.58634 0.79248 7.1359 0.79248C5.68546 0.79248 4.26683 1.28935 3.0963 2.29583C0.507131 4.52538 0.214494 8.43664 2.44105 11.0293L10.6093 19.8264C11.1055 20.3552 11.7799 20.61 12.4478 20.61C12.4478 20.61 12.4542 20.61 12.4605 20.61C12.4669 20.61 12.4669 20.61 12.4733 20.61C13.1412 20.61 13.8156 20.3488 14.3118 19.8264L22.48 11.0293C24.7066 8.43664 24.414 4.52538 21.8248 2.29583H21.8375Z"
+                  fill={isLiked ? '#5453EE' : '#C7C9CE'}
+                />
+              </svg>
+          </button>
         </div>
       </div>
 
@@ -249,26 +304,12 @@ const BoothReviewPage = () => {
           <div   style={{paddingLeft: '17px'}}>
             <p style={{ fontSize: '18px', fontWeight: '600' }}>부스 만족도</p>
             
-            {/* 별점과 아이콘이 나란히 표시 */}
+      
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '19px' }}>
-              <div style={{ display: 'flex', gap: '5px' }}>
-                {[1, 2, 3, 4, 5].map((index) => (
-                  <StarIcon 
-                    key={index}
-                    isSelected={index <= rating} 
-                    onClick={() => handleStarClick(index)} 
-                  />
-                ))}
-              </div>
+             
 
               {/* 선택된 별에 따른 아이콘 */}
-              <div>
-                {rating === 1 && <OneStarIcon />}
-                {rating === 2 && <TwoStarIcon />}
-                {rating === 3 && <ThreeStarIcon />}
-                {rating === 4 && <FourStarIcon />}
-                {rating === 5 && <FiveStarIcon />}
-              </div>
+              <div>{getStarFaceIcon(rating)}</div>
             </div>
 
             <Text fontSize="16px" color="#FFFFFF" fontWeight="400" marginTop="12px">

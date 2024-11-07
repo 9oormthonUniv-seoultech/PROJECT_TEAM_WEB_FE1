@@ -33,7 +33,8 @@ function AlbumPage() {
   const [dateFilter, setDateFilter] = useState(null);
   const [actionType, setActionType] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
 
   const [displayPhotos, setDisplayPhotos] = useState([]);
   // 임시 데이터
@@ -78,6 +79,20 @@ function AlbumPage() {
       onClick: () => setSelectedButton(true),
     },
   };
+
+  useEffect(() => {
+    if (selectedButton === 'location' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+          console.log("User's current location:", position.coords.latitude, position.coords.longitude);
+        },
+        (error) => console.error("Failed to get location:", error),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, [selectedButton]);
   
 
   useEffect(() => {
@@ -108,10 +123,40 @@ function AlbumPage() {
       }
     };
 
+    const fetchLocationPhotos = async () => {
+      if (selectedButton === 'location' && userId && latitude && longitude) {
+        try {
+          const response = await axios.get(`/api/album/${userId}/location`, {
+            params: {
+              latitude,
+              longitude,
+              searchTerm: searchQuery,
+            },
+          });
+
+          const photoData = response.data.map((item) => ({
+            url: item.images,
+            photo_like: item.photo_like,
+            id: item.photo_id,
+          }));
+
+          setPhotos(photoData);
+          console.log("Fetched location-based photos:", photoData);
+        } catch (error) {
+          console.error("Failed to fetch location-based photos:", error);
+        }
+      }
+    };
+
     if (selectedButton === 'date' || selectedButton === 'photobooth') {
       fetchPhotos();
+    } else {
+      fetchLocationPhotos();
     }
-  }, [selectedButton, selectedBooth, userId, dateFilter]);
+    
+
+    
+  }, [selectedButton, selectedBooth, userId, dateFilter, searchQuery]);
 
 
   const handleSearch = async () => {
