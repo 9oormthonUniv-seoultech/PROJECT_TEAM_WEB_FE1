@@ -1,27 +1,34 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Text from './Text';
 import cameraIcon from '../../assets/camera-icon.svg';
 import thunderIcon from '../../assets/thunder-icon.svg';
 import { ReactComponent as BackIcon } from '../../assets/x-icon.svg';
-import { QrScanner } from 'react-qr-scanner';
 import Button from './Button';
 import axios from 'axios';
 import { BASE_URL } from '../../config';
 
 const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) => {
   const [qrUrl, setQrUrl] = useState(null);
+  const videoRef = useRef(null);
 
-  // QR 인식 시 URL 저장
-  const handleQrScan = (data) => {
-    if (data) {
-      setQrUrl(data); // QR 코드를 읽으면 URL을 저장
+  useEffect(() => {
+    // 카메라 켜기
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        })
+        .catch((error) => console.error("카메라 오류:", error));
     }
-  };
 
-  // 오류 처리
-  const handleQrError = (error) => {
-    console.error("QR 코드 인식 오류:", error);
-  };
+    // 컴포넌트가 언마운트될 때 스트림 중지
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
   // 확인 버튼 클릭 시 API로 데이터 전송
   const handleConfirmClick = async () => {
@@ -32,7 +39,7 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) 
           url: qrUrl,
         });
         console.log("QR 코드 업로드 성공:", response.data);
-        onConfirm(); // 완료 후 다음 작업 실행
+        onConfirm();
       } catch (error) {
         console.error("QR 코드 업로드 실패:", error);
       }
@@ -91,7 +98,7 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) 
         </Text>
       </div>
 
-      {/* QR 리더 */}
+      {/* 카메라 피드 */}
       <div
         style={{
           width: '270px',
@@ -106,12 +113,7 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) 
           marginTop: '40px',
         }}
       >
-        <QrScanner
-          delay={300}
-          onError={handleQrError}
-          onScan={handleQrScan} // onResult 대신 onScan 사용
-          style={{ width: '100%', height: '100%' }}
-        />
+        <video ref={videoRef} style={{ width: '100%', height: '100%', borderRadius: '24px' }} />
       </div>
 
       <Text fontSize="18px" color="#FFFFFF" fontWeight="500" marginTop="20px">
@@ -127,7 +129,7 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) 
         color="#FFFFFF"
         fontSize="16px"
         marginTop="40px"
-        onClick={handleConfirmClick} // 확인 버튼 클릭 시 handleConfirmClick 호출
+        onClick={handleConfirmClick}
       />
     </div>
   );
