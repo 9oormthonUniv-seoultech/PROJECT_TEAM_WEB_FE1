@@ -172,6 +172,11 @@ const MyPage = () => {
     navigate('/Review', { state: { boothId, boothName } });
   };
 
+  const handleLogout = () => {
+    logout(); // AuthContext의 logout 함수 호출
+    navigate('/Home'); // 로그아웃 후 로그인 페이지로 이동
+  };
+
 
 
 
@@ -196,7 +201,7 @@ const MyPage = () => {
           boxShadow="none"
           marginTop="50px"
           
-          onClick={() => alert('로그아웃 클릭!')} 
+          onClick={handleLogout} 
         />
       </div>
 
@@ -304,7 +309,7 @@ const MyPage = () => {
             {/* 최근 2개의 리뷰 표시 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '13px', marginLeft: '16px', marginRight: '16px' }}>
               {recentReviews.length > 0 ? (
-                recentReviews.slice(-2).map((review) => (
+                recentReviews.slice(0,2).map((review) => (
                   <div key={review.review_id} style={{ width: '175px', height: '175px', position: 'relative' }}>
                     <img
                       src={review.image}

@@ -4,6 +4,7 @@ import Text from './Text';
 import { ReactComponent as BarIcon } from '../../assets/bar-icon.svg';
 import starIcon from '../../assets/star-icon.svg';
 import { BASE_URL } from '../../config';
+import { ReactComponent as CloseIcon } from '../../assets/x-icon.svg'; // 닫기 아이콘 추가
 
 
 const BottomSheet = ({ isOpen, onClose, locationInfo, userLocation }) => {
@@ -100,9 +101,26 @@ const BottomSheet = ({ isOpen, onClose, locationInfo, userLocation }) => {
         display: isOpen ? 'block' : 'none'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '18px 0' }}>
-        <BarIcon width="50" height="5"/>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '18px 16px' }}>
+        {/* BarIcon을 중앙에 두기 위한 컨테이너 */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <BarIcon width="50" height="5" />
+        </div>
+
+        {/* 닫기 버튼을 오른쪽 끝에 배치 */}
+        <button onClick={onClose} style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+        }}>
+          <CloseIcon width="15" height="15" />
+        </button>
       </div>
+
+
+      
 
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: '16px', marginBottom: '30px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>

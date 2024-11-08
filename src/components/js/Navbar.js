@@ -1,6 +1,7 @@
+// Navbar.js
 import React, { useState } from 'react';
 import '../css/Navbar.css';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { ReactComponent as HomeIcon } from '../../assets/navbar/home-icon.svg';
 import { ReactComponent as AlbumIcon } from '../../assets/navbar/album-icon.svg'; 
 import { ReactComponent as MyIcon } from '../../assets/navbar/my-icon.svg';
@@ -9,7 +10,7 @@ import HeartIconClicked from '../../assets/navbar/heart-icon-clicked.svg';
 import TrashIcon from '../../assets/navbar/trash-icon.svg';
 import TrashIconClicked from '../../assets/navbar/trash-icon-clicked.svg';
 
-function Navbar({ isSelectMode, onLike, onDelete }) {
+function Navbar({ isSelectMode, onLike, onDelete, isLoggedIn, onNavItemClick }) {
   const [activeButton, setActiveButton] = useState(null);
 
   const handleButtonClick = (button) => {
@@ -41,16 +42,16 @@ function Navbar({ isSelectMode, onLike, onDelete }) {
               </NavLink>
             </li>
             <li className="navbar-item">
-              <NavLink to="/Album" className={({ isActive }) => (isActive ? 'navbar-link active' : 'navbar-link')}>
+              <div onClick={() => onNavItemClick('/Album')} className="navbar-link">
                 <AlbumIcon className="navbar-icon" />
                 앨범
-              </NavLink>
+              </div>
             </li>
             <li className="navbar-item">
-              <NavLink to="/My" className={({ isActive }) => (isActive ? 'navbar-link active' : 'navbar-link')}>
+              <div onClick={() => onNavItemClick('/My')} className="navbar-link">
                 <MyIcon className="navbar-icon" />
                 MY
-              </NavLink>
+              </div>
             </li>
           </>
         )}

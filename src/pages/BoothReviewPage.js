@@ -432,8 +432,8 @@ const BoothReviewPage = () => {
         )}
         {selectedTab === 'review' && (
       
+            <div  style={{paddingLeft: '17px'}}>
             <div>
-            <div  style={{padding : "0px 17px"}}>
               {/* 상단 텍스트 */}
               <Text fontSize="18px" color="#171D24" fontWeight="600" marginBottom="31px">
                 부스는 이런 점이 좋았어요
@@ -443,9 +443,11 @@ const BoothReviewPage = () => {
               <ReviewBar icon={wideBooth} label="넓은 부스 공간" count={50} percentage={40} />
               <ReviewBar icon={variousBack} label="다양한 배경색" count={50} percentage={40} />
             </div>
-            <div style={{width: '412px', height: '12px', backgroundColor: '#F7F7F7', margin: '20px auto'}} ></div>
-            
-            <div style={{padding : "0px 17px"}}>
+
+             {/* 구분선 */ }
+             <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+
+             <div>
               {/* 상단 텍스트 */}
               <Text fontSize="18px" color="#171D24" fontWeight="600" marginBottom="31px">
                 촬영스타일은 이런 느낌이에요
@@ -454,26 +456,11 @@ const BoothReviewPage = () => {
               <ReviewBar icon={natural} label="자연스러운 보정" count={78} percentage={66.67} />
               <ReviewBar icon={lighter} label="생각보다 밝음" count={50} percentage={40} />
               <ReviewBar icon={noShine} label="빚번짐 없음" count={50} percentage={40} />
-            </div>
-            <div style={{width: '412px', height: '12px', backgroundColor: '#F7F7F7', margin: '20px auto'}} ></div>
-            <div>
-              <div style={{display:'flex', marginLeft : '16px' }}>
-                <Text fontSize="18px" color="#171C24" fontWeight="600"> 리뷰 </Text>
-                <Text fontSize="18px" color="#676F7B" fontWeight="600" marginLeft="5px" > {totalReview} </Text>
               </div>
-              {reviews.map((review, index) => (
-                <ReviewList
-                  key={index}
-                  profileImage={review.profileImage}
-                  nickname={review.nickname}
-                  date={review.date}
-                  content={review.content}
-                  hashtags={review.hashtags}
-                  boothImage={review.boothImage}
-                  imageCount={review.imageCount}
-                />
-              ))}
-            </div>
+              {/* 구분선 */ }
+              <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+              {/* 구분선 */ }
+             <div style={{ width: '120%', height: '100px', backgroundColor: '#ffffff', margin: '20px -16px', }}></div>
   
         </div>
               

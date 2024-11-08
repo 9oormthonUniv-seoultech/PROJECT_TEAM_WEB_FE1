@@ -6,11 +6,12 @@ import currentMarker from '../../assets/current-marker.svg';
 import { BASE_URL } from '../../config';
 
 
-const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: propLocations = [], center, onMarkerClick, userLocation, isAlbumPage }) => {
-  const [clickedMarkerIndex, setClickedMarkerIndex] = useState(null);
+const KakaoMap = ({ source, onBrandsUpdate,setClickedMarkerIndex, selectedBrands = [], locations: propLocations = [], center, onMarkerClick, userLocation, isAlbumPage, clickedMarkerIndex  }) => {
+ 
   const [locations, setLocations] = useState([]);
   const [markerPosition, setMarkerPosition] = useState(userLocation); // 초기 위치 설정
 
+  const [mapCenter, setMapCenter] = useState(center);
   const defaultLocation = { lat: 37.6329741, lng: 127.0798802 }; // 서울 기본 좌표
    // 기존 데이터와의 혼동을 방지하고 AlbumPage 데이터를 우선 처리
   const filteredLocations = isAlbumPage
@@ -30,6 +31,9 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
     '포토그레이': '/images/photogray.png',
     '비룸': '/images/broom.png',
   };
+  useEffect(() => {
+    setMapCenter(center);
+  }, [center]);
 
   useEffect(() => {
     if (center) {
@@ -95,7 +99,7 @@ const KakaoMap = ({ source, onBrandsUpdate, selectedBrands = [], locations: prop
                 boothLat={location.lat}
                 boothLng={location.lng}
                 isClicked={clickedMarkerIndex === location.id}
-                onClick={() => handleMarkerClick(location.id, location.name, location.lat, location.lng)}
+                onClick={() => onMarkerClick(location.id, location.name, location.lat, location.lng)}
               />
             </CustomOverlayMap>
           );

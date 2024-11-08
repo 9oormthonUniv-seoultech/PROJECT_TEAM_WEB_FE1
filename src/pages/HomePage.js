@@ -108,10 +108,8 @@ function HomePage() {
   const handleMarkerClick = (boothId, boothName, boothLat, boothLng) => {
 
     setClickedMarkerIndex(boothId); 
-    setIsBottomSheetOpen(false);  // BottomSheet를 닫기 전에 잠깐 닫음
-    setTimeout(() => {             // 100ms 후에 다시 열림
-      setIsBottomSheetOpen(true);
-    }, 100);
+    setIsBottomSheetOpen(true);
+
   
     // API 조회 없이 데이터를 설정
     setSelectedLocation({
@@ -134,6 +132,15 @@ function HomePage() {
     setSelectedLocation(null); // 선택된 위치 초기화
     setClickedMarkerIndex(null);
   };
+
+  // center가 변경될 때 BottomSheet와 clickedMarkerIndex 해제
+  useEffect(() => {
+    if (mapCenter) {
+      console.log("Map center changed, attempting to close BottomSheet.");
+      closeBottomSheet(); // BottomSheet 닫기 및 선택 상태 해제
+    }
+  }, [mapCenter]);
+  
 
   const brandImages = {
     '포토이즘박스': '/images/photoism.png',
@@ -182,7 +189,11 @@ function HomePage() {
     }
   };
   const handleNavItemClick = (navigateTo) => {
-    requireLogin(navigateTo);
+    if (!isLoggedIn) {
+      setIsModalOpen(true); // 로그인하지 않은 경우 모달 열기
+    } else {
+      navigate(navigateTo); // 로그인된 경우 페이지 이동
+    }
   };
 
   const handleAddPhotoClick = () => {
@@ -340,6 +351,8 @@ function HomePage() {
         center={mapCenter || userLocation}
         onMarkerClick={handleMarkerClick}
         userLocation={userLocation}
+        clickedMarkerIndex={clickedMarkerIndex}
+        setClickedMarkerIndex={setClickedMarkerIndex} // clickedMarkerIndex 업데이트 함수 전달
       />
 
       <BottomSheet 
