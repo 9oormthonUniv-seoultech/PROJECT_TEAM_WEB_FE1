@@ -98,6 +98,7 @@ const BoothReviewPage = () => {
           setRating(response.data.rating); // rating 값을 상태에 저장
           setReviewPhotos(response.data.reviewPhotos); // reviewPhotos 배열을 상태에 저장
           setTotalImageCount(response.data.totalImageCount);
+          setReviews(response.data.reviews || []);
           console.log("Fetched reviews:", response.data);
         }
       } catch (error) {
@@ -425,6 +426,20 @@ const BoothReviewPage = () => {
               </div>
               {/* 구분선 */ }
               <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+              
+
+             {reviews.map((review, index) => (
+                <ReviewList
+                  key={index}
+                  profileImage={review.profileImage}
+                  nickname={review.nickname}
+                  date={review.date}
+                  content={review.content}
+                  hashtags={review.hashtags}
+                  boothImage={review.boothImage}
+                  imageCount={review.imageCount}
+                />
+              ))}
               {/* 구분선 */ }
              <div style={{ width: '120%', height: '100px', backgroundColor: '#ffffff', margin: '20px -16px', }}></div>
           </div>
@@ -459,6 +474,18 @@ const BoothReviewPage = () => {
               </div>
               {/* 구분선 */ }
               <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+              {reviews.map((review, index) => (
+                <ReviewList
+                  key={index}
+                  profileImage={review.profileImage}
+                  nickname={review.nickname}
+                  date={review.date}
+                  content={review.content}
+                  hashtags={review.hashtags}
+                  boothImage={review.boothImage}
+                  imageCount={review.imageCount}
+                />
+              ))}
               {/* 구분선 */ }
              <div style={{ width: '120%', height: '100px', backgroundColor: '#ffffff', margin: '20px -16px', }}></div>
   
@@ -467,18 +494,18 @@ const BoothReviewPage = () => {
         )}
         {selectedTab === 'photo' && (
           <div>
-            {/* 사진 리스트 */}
-            <div className="photo-gallery" style={{ display: 'grid', gap: '8px', padding: '16px', gridTemplateColumns: 'repeat(2, 1fr)'}}>
-              {[1, 2, 3, 4, 5, 6].map((_, index) => (
-                <img 
-                  key={index}
-                  src={`https://via.placeholder.com/150?text=Photo+${index + 1}`} 
-                  alt={`갤러리 이미지 ${index + 1}`}
-                  style={{ width: '100%', maxheight : '186px', borderRadius: '8px', objectFit: 'cover' }}
-                />
-              ))}
-            </div>
+          {/* 사진 탭에 reviewPhotos 사용 */}
+          <div className="photo-gallery" style={{ display: 'grid', gap: '8px', padding: '16px', gridTemplateColumns: 'repeat(2, 1fr)'}}>
+            {reviewPhotos.map((photoUrl, index) => (
+              <img 
+                key={index}
+                src={photoUrl}
+                alt={`갤러리 이미지 ${index + 1}`}
+                style={{ width: '100%', maxHeight: '186px', borderRadius: '8px', objectFit: 'cover' }}
+              />
+            ))}
           </div>
+        </div>
         )}
       </div>
       </div>
