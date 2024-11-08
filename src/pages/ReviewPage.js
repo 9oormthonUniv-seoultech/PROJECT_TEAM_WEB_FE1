@@ -8,6 +8,7 @@ import InputValue from '../components/js/InputValue';
 import StarIcon from '../components/js/StarIcon'; // StarIcon 컴포넌트 import
 import photoIcon from '../assets/photo-icon.svg';
 import nonPhotoIcon from '../assets/non-photo.svg';
+import { BASE_URL } from '../config';
 
 const ReviewPage = () => {
   const { userId } = useAuth();
@@ -37,6 +38,7 @@ const ReviewPage = () => {
   const handleStarClick = (index) => {
     setRating(index);
   };
+  
 
   const handleBoothButtonClick = (text) => {
     setSelectedBoothKeywords((prevSelected) =>
@@ -106,7 +108,7 @@ const ReviewPage = () => {
     console.log("Sending Review Data:", Object.fromEntries(formData.entries())); // 확인용 콘솔 출력
   
     try {
-      const response = await fetch(`/api/review/user/${userId}`, {
+      const response = await fetch(`${BASE_URL}api/review/user/${userId}`, {
         method: 'POST',
         body: formData,
       });

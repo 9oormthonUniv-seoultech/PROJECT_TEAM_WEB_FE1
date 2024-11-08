@@ -11,6 +11,9 @@ import Text from '../components/js/Text';
 import FilteringButton from '../components/js/FilteringButton';
 import BottomSheet from '../components/js/BottomSheet';
 import addIcon from '../assets/add-icon.svg';
+import { BASE_URL } from '../config';
+
+
 
 function HomePage() {
   const navigate = useNavigate();
@@ -83,7 +86,7 @@ function HomePage() {
 
   const fetchLocations = async (latitude, longitude) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}api/map?latitude=${latitude}&longitude=${longitude}`);
+      const response = await fetch(`${BASE_URL}api/map?latitude=${latitude}&longitude=${longitude}`);
       const data = await response.json();
 
       const newLocations = data.photobooths.map(booth => ({
@@ -210,7 +213,7 @@ function HomePage() {
             const longitude = position.coords.longitude;
   
             try {
-              const response = await fetch(`${process.env.REACT_APP_API_URL}api/map?latitude=${latitude}&longitude=${longitude}`);
+              const response = await fetch(`${BASE_URL}api/map?latitude=${latitude}&longitude=${longitude}`);
               const data = await response.json();
   
               setSearchResults(data.photobooths.map(booth => ({
@@ -235,7 +238,7 @@ function HomePage() {
     } else {
       // 검색어가 있을 때
       try {
-        const response = await fetch(`/api/map/search?searchTerm=${encodeURIComponent(searchTerm)}`);
+        const response = await fetch(`${BASE_URL}api/map/search?searchTerm=${encodeURIComponent(searchTerm)}`);
         const data = await response.json();
   
         setSearchResults(data.photobooths.map(booth => ({

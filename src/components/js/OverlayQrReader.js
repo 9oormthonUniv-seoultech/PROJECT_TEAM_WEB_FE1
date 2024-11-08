@@ -6,6 +6,7 @@ import { ReactComponent as BackIcon } from '../../assets/x-icon.svg';
 import { QrScanner } from 'react-qr-scanner';
 import Button from './Button';
 import axios from 'axios';
+import { BASE_URL } from '../../config';
 
 const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) => {
   const [qrUrl, setQrUrl] = useState(null);
@@ -26,7 +27,7 @@ const OverlayQrReader = ({ onClose, iconColor = "#D9D9D9", onConfirm, userId }) 
   const handleConfirmClick = async () => {
     if (qrUrl && userId) {
       try {
-        const response = await axios.post('/api/photo/temp/upload/qr', {
+        const response = await axios.post(`${BASE_URL}api/photo/temp/upload/qr`, {
           user_id: userId,
           url: qrUrl,
         });

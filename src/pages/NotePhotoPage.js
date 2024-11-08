@@ -11,6 +11,8 @@ import shareIcon from '../assets/share-icon.svg';
 import clickedShareIcon from '../assets/clicked-share-icon.svg';
 import unclickedShareIcon from '../assets/unclicked-share-icon.svg';
 import SpeechBubble from '../components/js/SpeechBubble';
+import { BASE_URL } from '../config';
+
 
 const NotePhotoPage = () => {
   const navigate = useNavigate();
@@ -72,17 +74,17 @@ const NotePhotoPage = () => {
     }
 
     try {
-      console.log("POST 요청을 보냅니다: `/api/photo/save/${photoTempId}`");
+      console.log("POST 요청을 보냅니다: `${BASE_URL}api/photo/save/${photoTempId}`");
 
       // 첫 번째 요청: '/api/photo/save/:photoTemp_id'로 POST 요청 보내기
-      const saveResponse = await axios.post(`/api/photo/save/${photoTempId}`);
+      const saveResponse = await axios.post(`${BASE_URL}api/photo/save/${photoTempId}`);
       console.log('POST 요청 응답 데이터:', saveResponse.data);
       const newPhotoId = saveResponse.data?.newPhoto?.id;
 
       // 'isIconClicked'가 true이면 추가로 '/api/photo/share/:photo_id'로 GET 요청 보내기
       if (isIconClicked) {
-        console.log(`GET 요청을 보냅니다: /api/photo/share/${newPhotoId}`);
-        const shareResponse = await axios.get(`/api/photo/share/${newPhotoId}`);
+        console.log(`GET 요청을 보냅니다: ${BASE_URL}api/photo/share/${newPhotoId}`);
+        const shareResponse = await axios.get(`${BASE_URL}api/photo/share/${newPhotoId}`);
         console.log('GET 요청 응답 데이터:', shareResponse.data);
 
         const shareLink = shareResponse.data?.shareLink;
@@ -109,7 +111,7 @@ const NotePhotoPage = () => {
 
   const handleNextTimeClick = async () => {
     // '다음에 할게요' 버튼을 클릭하면 '/home'으로 이동
-    const saveResponse = await axios.post(`/api/photo/save/${photoTempId}`);
+    const saveResponse = await axios.post(`${BASE_URL}api/photo/save/${photoTempId}`);
     console.log('POST 요청 응답 데이터:', saveResponse.data);
     navigate('/home');
   };
@@ -121,7 +123,7 @@ const NotePhotoPage = () => {
     }
   
     try {
-      const response = await axios.put(`/api/photo/temp/${photoTempId}/update-record`, {
+      const response = await axios.put(`${BASE_URL}api/photo/temp/${photoTempId}/update-record`, {
         hashtag_1: hashtags.hashtag_1,
         hashtag_2: hashtags.hashtag_2,
         hashtag_3: hashtags.hashtag_3,

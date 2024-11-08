@@ -12,6 +12,7 @@ import LoadingOverlay from '../components/js/LoadingOverlay';
 import SearchBar from '../components/js/SearchBar';
 import searchIcon from '../assets/search-icon.svg'; 
 import axios from 'axios';
+import { BASE_URL } from '../config';
 
 function AddPhotoPage() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ function AddPhotoPage() {
       try {
         console.log('전송할 user_id:', userId);
         console.log('전송할 파일명:', file.name);
-        const response = await axios.post('/api/photo/temp/upload/img', formData, {
+        const response = await axios.post(`${BASE_URL}api/photo/temp/upload/img`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -97,7 +98,7 @@ function AddPhotoPage() {
   const handleSearch = async () => {
     if (searchTerm.trim()) {
       try {
-        const response = await axios.get('/api/photo/temp/update-info', {
+        const response = await axios.get(`${BASE_URL}api/photo/temp/update-info`, {
           params: { searchTerm },
         });
         
@@ -170,7 +171,7 @@ function AddPhotoPage() {
     if (photoTempId && photoboothId && year && month && day) {
       const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       try {
-        const response = await axios.put(`/api/photo/temp/${photoTempId}/update-info`, {
+        const response = await axios.put(`${BASE_URL}api/photo/temp/${photoTempId}/update-info`, {
           date: formattedDate,
           photobooth_id: photoboothId,
         });

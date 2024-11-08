@@ -54,14 +54,12 @@ const MyPage = () => {
     console.log("User ID:", userId);
   }, [accessToken, userId]);
 
-  console.log("API URL:", process.env.REACT_APP_API_URL);
-
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         if (userId) {
-          const response = await axios.get(`/api/user/${userId}`, {
+          const response = await axios.get(`${BASE_URL}api/user/${userId}`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -83,7 +81,7 @@ const MyPage = () => {
     const fetchReviews = async () => {
       try {
         if (userId) {
-          const response = await axios.get(`/api/review/mypage/${userId}`, {
+          const response = await axios.get(`${BASE_URL}api/review/mypage/${userId}`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -99,7 +97,7 @@ const MyPage = () => {
     const fetchBoothVisits = async () => {
       if (userId) {
         try {
-          const response = await axios.get(`/api/user/${userId}/booth-visit`, {
+          const response = await axios.get(`${BASE_URL}api/user/${userId}/booth-visit`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -114,7 +112,7 @@ const MyPage = () => {
     };
     const fetchBoothLikes = async () => {
       try {
-        const response = await axios.get(`/api/user/${userId}/booth-like`, {
+        const response = await axios.get(`${BASE_URL}api/user/${userId}/booth-like`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -135,7 +133,7 @@ const MyPage = () => {
     const fetchFavoritePhotos = async () => {
       if (selectedTab === 'favorite' && userId) {
         try {
-          const response = await axios.get(`/api/album/${userId}`, {
+          const response = await axios.get(`${BASE_URL}api/album/${userId}`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Text from './Text';
 import { ReactComponent as BarIcon } from '../../assets/bar-icon.svg';
 import starIcon from '../../assets/star-icon.svg';
+import { BASE_URL } from '../../config';
+
 
 const BottomSheet = ({ isOpen, onClose, locationInfo, userLocation }) => {
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ const BottomSheet = ({ isOpen, onClose, locationInfo, userLocation }) => {
       
       if (boothId) {
         try {
-          const response = await fetch(`/api/booth/${boothId}`);
+          const response = await fetch(`${BASE_URL}api/booth/${boothId}`);
           const data = await response.json();
           console.log("userLocation 정보 ",userLocation);
 

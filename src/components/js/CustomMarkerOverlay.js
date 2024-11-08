@@ -1,7 +1,10 @@
 import React from 'react';
 
 const CustomMarkerOverlay = ({ imageUrl, boothId, boothLat, boothLng, isClicked, onClick }) => {
+  console.log("CustomMarkerOverlay",imageUrl);
+  const isWebUrl = imageUrl.startsWith("http://") || imageUrl.startsWith("https://");
   return (
+
     <div
       onClick={() => onClick(boothId)} // boothId 전달
       style={{
@@ -44,6 +47,10 @@ const CustomMarkerOverlay = ({ imageUrl, boothId, boothLat, boothLng, isClicked,
             transition: 'width 0.2s, height 0.2s',
           }} 
         />
+        onError={(e) => {
+            console.error("Image load failed, using default image:", e);
+            e.target.src = isWebUrl ? "/images/default.png" : imageUrl; // 웹 URL이 실패할 경우에만 기본 이미지 사용
+          }}
       </div>
     </div>
   );

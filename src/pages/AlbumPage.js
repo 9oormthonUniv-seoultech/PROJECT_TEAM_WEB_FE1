@@ -12,7 +12,9 @@ import Photo from '../components/js/Photo';
 import YearMonthModal from '../components/js/YearMonthModal';
 import ConfirmModal from '../components/js/ConfirmModal';
 import KakaoMap from '../components/js/KakaoMap';
+import CustomMarkerOverlay from '../components/js/CustomMarkerOverlay';
 import axios from 'axios';
+import { BASE_URL } from '../config';
 
 
 
@@ -26,6 +28,7 @@ function AlbumPage() {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedBooth, setSelectedBooth] = useState(location.state?.selectedBooth || '포토부스');
   const [photos, setPhotos] = useState([]);
+  const [locationPhotos, setLocationPhotos] = useState([]);
   const [isYearMonthModalOpen, setIsYearMonthModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -35,7 +38,6 @@ function AlbumPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
-
   const [displayPhotos, setDisplayPhotos] = useState([]);
   // 임시 데이터
   const boothPhotos = {
@@ -99,7 +101,7 @@ function AlbumPage() {
     const fetchPhotos = async () => {
       try {
         if (userId) {
-          const url = `/api/album/${userId}`;
+          const url = `${BASE_URL}api/album/${userId}`;
           let params = {};
 
           if (selectedButton === 'date' && dateFilter) {
@@ -123,46 +125,51 @@ function AlbumPage() {
       }
     };
 
-    const fetchLocationPhotos = async () => {
-      if (selectedButton === 'location' && userId && latitude && longitude) {
-        try {
-          const response = await axios.get(`/api/album/${userId}/location`, {
-            params: {
-              latitude,
-              longitude,
-              searchTerm: searchQuery,
-            },
-          });
+    const fetchLocationPhotos = async (lat, lng) => {
+      try {
+        const response = await axios.get(`${BASE_URL}api/album/${userId}/location`, {
+          params: {
+            latitude: lat,
+            longitude: lng,
+          },
+        });
+    
+        const photoData = response.data.map((item) => ({
+          id: item.photo_id,
+          imageUrl: item.images, // images를 imageUrl로 매핑
+          lat: lat, // 각 사진의 위도
+          lng: lng, // 각 사진의 경도
+          photo_like: item.photo_like,
+        }));
 
-          const photoData = response.data.map((item) => ({
-            url: item.images,
-            photo_like: item.photo_like,
-            id: item.photo_id,
-          }));
-
-          setPhotos(photoData);
-          console.log("Fetched location-based photos:", photoData);
-        } catch (error) {
-          console.error("Failed to fetch location-based photos:", error);
-        }
+        // 전달될 URL들을 출력
+        photoData.forEach(photo => {
+          console.log("AlbumPage에서 전달되는 imageUrl:", photo.imageUrl);
+        });
+        
+        setLocationPhotos(photoData);
+      } catch (error) {
+        console.error("Failed to fetch location-based photos:", error);
       }
     };
+    
 
     if (selectedButton === 'date' || selectedButton === 'photobooth') {
       fetchPhotos();
-    } else {
+    } 
+    if (latitude && longitude) {
       fetchLocationPhotos();
     }
     
 
     
-  }, [selectedButton, selectedBooth, userId, dateFilter, searchQuery]);
+  }, [selectedButton, selectedBooth, userId, dateFilter, searchQuery, latitude ,longitude]);
 
 
   const handleSearch = async () => {
     if (!searchQuery) return; // 검색어가 없을 때는 요청하지 않음
     try {
-      const response = await axios.get(`/api/album/${userId}`, {
+      const response = await axios.get(`${BASE_URL}api/album/${userId}`, {
         params: { hashtag: searchQuery }
       });
       
@@ -217,7 +224,7 @@ function AlbumPage() {
   const fetchPhotos = async () => {
     try {
       if (userId) {
-        const url = `/api/album/${userId}`;
+        const url = `${BASE_URL}api/album/${userId}`;
         const response = await axios.get(url);
   
         console.log('API 응답 데이터:', response.data); // Log the response to inspect the structure
@@ -280,7 +287,7 @@ function AlbumPage() {
     // 서버 업데이트
     for (const photoId of selectedPhotos) {
       try {
-        await axios.post(`/api/photo/like/${photoId}`);
+        await axios.post(`${BASE_URL}api/photo/like/${photoId}`);
         console.log(`Liked photo with ID: ${photoId}`);
       } catch (error) {
         console.error(`Failed to like photo with ID: ${photoId}`, error);
@@ -296,7 +303,7 @@ function AlbumPage() {
     // 서버 업데이트
     for (const photoId of selectedPhotos) {
       try {
-        await axios.delete(`/api/photo/delete/${photoId}`);
+        await axios.delete(`${BASE_URL}api/photo/delete/${photoId}`);
         console.log(`Deleted photo with ID: ${photoId}`);
       } catch (error) {
         console.error(`Failed to delete photo with ID: ${photoId}`, error);
@@ -395,25 +402,18 @@ function AlbumPage() {
       
     {selectedButton === 'location' ? (
          <>
-         <KakaoMap source="album" />
-         {/* 카카오맵 위에 오버레이로 표시될 Photo들 */}
-         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-           <div style={{ position: 'relative', top: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-             {displayPhotos.map((photo) => (
-               <Photo 
-                 key={photo.id}
-                 photoId={photo.id}
-                 photoUrl={photo.url}
-                 isLiked={photo.photo_like}
-                 altText={`사진 ${photo.id}`}
-                 style={{
-                   marginBottom: '10px',
-                   boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)',
-                 }}
-               />
-             ))}
-           </div>
-         </div>
+          {latitude && longitude && (
+            <KakaoMap
+              center={{ lat: latitude, lng: longitude }} // 현위치를 중심으로 설정
+              locations={locationPhotos} // locationPhotos에 이미지 URL만 포함
+              onMarkerClick={(boothId, boothName, boothLat, boothLng) =>
+                console.log("Marker clicked:", boothId, boothName, boothLat, boothLng)
+              }
+              userLocation={{ lat: latitude, lng: longitude }} // 사용자 현위치 전달
+              isAlbumPage={true} // AlbumPage에서 호출했음을 알리기 위함
+            />
+          )}
+
          {/* 부스 선택 버튼들 */}
          <div style={{ position: 'fixed', bottom: '100px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '10px' }}>
            <Button text="부스 1" onClick={() => handleBoothClick('booth1')} />

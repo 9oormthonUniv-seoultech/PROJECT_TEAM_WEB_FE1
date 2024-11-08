@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import checkIcon from '../../assets/check-icon.svg';
 import axios from 'axios';
+import { BASE_URL } from '../../config';
+
 
 function Photo({ photoUrl, altText, photoId, isLiked: initialIsLiked, isSelected, isSelectMode, onClick }) {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
@@ -9,7 +11,7 @@ function Photo({ photoUrl, altText, photoId, isLiked: initialIsLiked, isSelected
     e.stopPropagation(); // Prevents toggling selection when clicking the heart icon
     
     try {
-      await axios.post(`/api/photo/toggleLike/${photoId}`);
+      await axios.post(`${BASE_URL}api/photo/toggleLike/${photoId}`);
       console.log(`Sent like request for photo with ID: ${photoId}`);
       setIsLiked(!isLiked); // Toggle local like state visually
     } catch (error) {

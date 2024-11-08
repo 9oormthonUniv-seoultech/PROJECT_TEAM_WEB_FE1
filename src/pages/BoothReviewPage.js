@@ -24,7 +24,7 @@ import coolFilter from '../assets/booth-review/cool-filter-icon.svg';
 import natural from '../assets/booth-review/natural-icon.svg';
 import lighter from '../assets/booth-review/lighter-icon.svg';
 import noShine from '../assets/booth-review/no-shine-icon.svg';
-
+import { BASE_URL } from '../config';
 
 
 const BoothReviewPage = () => {
@@ -77,7 +77,7 @@ const BoothReviewPage = () => {
     setIsLiked(!isLiked); // 하트 상태 변경
 
     try {
-      await axios.post('/api/booth', {
+      await axios.post('${BASE_URL}api/booth', {
         user_id: userId,        // 현재 사용자 ID
         photobooth_id: boothId, // 부스 ID
         isLiked: !isLiked       // 현재 하트 상태
@@ -94,7 +94,7 @@ const BoothReviewPage = () => {
     const fetchReviews = async () => {
       try {
         if (boothId) {
-          const response = await axios.get(`/api/review/boothphoto/${boothId}`);
+          const response = await axios.get(`${BASE_URL}api/review/boothphoto/${boothId}`);
           setRating(response.data.rating); // rating 값을 상태에 저장
           setReviewPhotos(response.data.reviewPhotos); // reviewPhotos 배열을 상태에 저장
           setTotalImageCount(response.data.totalImageCount);
@@ -106,7 +106,7 @@ const BoothReviewPage = () => {
     };
     const fetchBoothData = async () => {
       try {
-        const response = await axios.get(`/api/review/booth/${boothId}`);
+        const response = await axios.get(`${BASE_URL}api/review/booth/${boothId}`);
         setReviews(response.data.reviews);
         
         const photos = response.data.reviews.map((review) => review.image);
