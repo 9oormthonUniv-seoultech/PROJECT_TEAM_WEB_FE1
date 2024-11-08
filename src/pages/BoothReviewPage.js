@@ -3,13 +3,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import HeaderBar from '../components/js/HeaderBar'; // HeaderBar 컴포넌트 가져오기
+import HeaderBar from '../components/js/HeaderBar';
+import Navbar from '../components/js/Navbar'; // HeaderBar 컴포넌트 가져오기
 import { ReactComponent as HeartIcon } from '../assets/heart-icon.svg';
 import Button from '../components/js/Button';
 import Text from '../components/js/Text';
 import ReviewBar from '../components/js/ReviewBar';
 import ReviewList from '../components/js/ReviewList';
-import StarIcon from '../components/js/StarIcon';
+import NextIcon from '../assets/next-icon.svg';
 import OneStarFaceIcon from '../assets/star-face-icon/one-star-face-icon.svg';
 import TwoStarFaceIcon from '../assets/star-face-icon/two-star-face-icon.svg';
 import ThreeStarFaceIcon from '../assets/star-face-icon/three-star-face-icon.svg';
@@ -43,8 +44,10 @@ const BoothReviewPage = () => {
   console.log("Received boothId:", boothId);
 
   const [currentSlide, setCurrentSlide] = useState(0);
- 
+  const imageGridSize = { width: 112, height: 119 }; 
   const imageSliderRef = useRef(null);
+  const [totalImageCount, setTotalImageCount] = useState(0);
+
 
   const totalSlides = 4; 
   const getStarFaceIcon = (rating) => {
@@ -94,12 +97,27 @@ const BoothReviewPage = () => {
           const response = await axios.get(`/api/review/boothphoto/${boothId}`);
           setRating(response.data.rating); // rating 값을 상태에 저장
           setReviewPhotos(response.data.reviewPhotos); // reviewPhotos 배열을 상태에 저장
+          setTotalImageCount(response.data.totalImageCount);
           console.log("Fetched reviews:", response.data);
         }
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
     };
+    const fetchBoothData = async () => {
+      try {
+        const response = await axios.get(`/api/review/booth/${boothId}`);
+        setReviews(response.data.reviews);
+        
+        const photos = response.data.reviews.map((review) => review.image);
+        setReviewPhotos(photos);
+      } catch (error) {
+        console.error("Failed to fetch booth data:", error);
+      }
+    };
+    if (boothId) {
+      fetchBoothData();
+    }
 
     fetchReviews();
   }, [boothId]);
@@ -120,8 +138,12 @@ const BoothReviewPage = () => {
     setRating(index);
   };
 
+  const handleMorePhotosClick = () => {
+    alert('더보기 클릭!'); // '더보기' 버튼 클릭 시 동작 추가
+  };
+
   return (
-    <div className="app-container">
+    <div className="app-container" >
       {/* HeaderBar */}
       <HeaderBar 
         title={boothName}
@@ -130,6 +152,9 @@ const BoothReviewPage = () => {
         backgroundColor="#ffffff"
         buttonColor="#171D24"
       />
+      <div className="navbar-fixed" style={{ position: 'absolute', bottom: '0', width: '100%', zIndex: 20 }}>
+        <Navbar />
+      </div>
       <div className='scrollable-content'>
 
       {/* 사진 슬라이드 */}
@@ -306,27 +331,104 @@ const BoothReviewPage = () => {
             
       
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '19px' }}>
-             
-
               {/* 선택된 별에 따른 아이콘 */}
               <div>{getStarFaceIcon(rating)}</div>
             </div>
+            {/* 구분선 */ }
+            <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
 
-            <Text fontSize="16px" color="#FFFFFF" fontWeight="400" marginTop="12px">
-              {rating > 0 ? `별 ${rating}개 선택됨` : '별점을 선택해주세요'}
-            </Text>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Text fontSize="18px" fontWeight="600">사진 </Text>
+                <Text fontSize="18px" fontWeight="600" color="#676F7B" marginLeft="5px">{totalImageCount}</Text>
+              </div>
+             
+              <Button 
+                text="더보기" 
+                backgroundColor="#E9EAEE"
+                border="none"
+                borderRadius="24px"
+                padding="4px 8px"
+                marginRight="16px"
+                color="#676F7B"
+                fontSize="12px"
+                fontWeight="400"
+                boxShadow="none"
+                icon={NextIcon}
+                iconPosition="right"
+                onClick={handleMorePhotosClick}
+              />
+            </div>
 
-            <div className="review-images" style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginTop: '20px' }}>
-              {[1, 2, 3, 4].map((_, index) => (
-                <img 
+
+            {/* 사진 3x2 그리드 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              {reviewPhotos.slice(0, 5).map((photoUrl, index) => (
+                <img
                   key={index}
-                  src={`https://via.placeholder.com/150?text=Review+${index + 1}`} 
-                  alt={`리뷰 이미지 ${index + 1}`}
-                  style={{ width: '150px', height: '150px', borderRadius: '10px', objectFit: 'cover' }}
+                  src={photoUrl}
+                  alt={`사진 ${index + 1}`}
+                  style={{ width: `${imageGridSize.width}px`, height: `${imageGridSize.height}px`, objectFit: 'cover', borderRadius: '8px' }}
                 />
               ))}
+
+              {/* 이미지가 6개 미만일 때 빈 칸 추가 */}
+              {Array.from({ length: 6 - Math.min(6, reviewPhotos.length) }).map((_, index) => (
+                <div
+                  key={`empty-${index}`}
+                  style={{
+                    width: `${imageGridSize.width}px`,
+                    height: `${imageGridSize.height}px`,
+                    backgroundColor: '#E9EAEE',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative'
+                  }}
+                >
+                  {/* 마지막 빈 칸에 추가 이미지 수 표시 */}
+                  {index === 5 - reviewPhotos.slice(0, 5).length && totalImageCount > 6 && (
+                    <Text fontSize="18px" color="#5453EE" fontWeight="600" style={{ position: 'absolute' }}>
+                      +{totalImageCount - 5}
+                    </Text>
+                  )}
+                </div>
+              ))}
             </div>
+             {/* 구분선 */ }
+             <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+
+            <div>
+              {/* 상단 텍스트 */}
+              <Text fontSize="18px" color="#171D24" fontWeight="600" marginBottom="31px">
+                부스는 이런 점이 좋았어요
+              </Text>
+              <ReviewBar icon={variousFrame} label="다양한 프레임" count={120} percentage={80} />
+              <ReviewBar icon={cleanBooth} label="청결한 부스" count={78} percentage={66.67} />
+              <ReviewBar icon={wideBooth} label="넓은 부스 공간" count={50} percentage={40} />
+              <ReviewBar icon={variousBack} label="다양한 배경색" count={50} percentage={40} />
+            </div>
+
+             {/* 구분선 */ }
+             <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+
+             <div>
+              {/* 상단 텍스트 */}
+              <Text fontSize="18px" color="#171D24" fontWeight="600" marginBottom="31px">
+                촬영스타일은 이런 느낌이에요
+              </Text>
+              <ReviewBar icon={coolFilter} label="쿨톤 필터 가능" count={120} percentage={80} />
+              <ReviewBar icon={natural} label="자연스러운 보정" count={78} percentage={66.67} />
+              <ReviewBar icon={lighter} label="생각보다 밝음" count={50} percentage={40} />
+              <ReviewBar icon={noShine} label="빚번짐 없음" count={50} percentage={40} />
+              </div>
+              {/* 구분선 */ }
+              <div style={{ width: '120%', height: '10px', backgroundColor: '#f7f7f7', margin: '20px -16px', }}></div>
+              {/* 구분선 */ }
+             <div style={{ width: '120%', height: '100px', backgroundColor: '#ffffff', margin: '20px -16px', }}></div>
           </div>
+        
         )}
         {selectedTab === 'review' && (
       

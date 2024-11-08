@@ -11,6 +11,7 @@ import EditIcon from '../assets/edit-icon.svg';
 import NextIcon from '../assets/next-icon.svg';
 import MarkerIcon from '../assets/marker-icon.svg';
 import StarIcon from '../assets/star-icon.svg';
+import { BASE_URL } from '../config';
 
 
 const MyPage = () => {
@@ -47,6 +48,14 @@ const MyPage = () => {
     const walk = (x - startX) * 2; // 스크롤 속도 조절
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
+
+  useEffect(() => {
+    console.log("Access Token:", accessToken);
+    console.log("User ID:", userId);
+  }, [accessToken, userId]);
+
+  console.log("API URL:", process.env.REACT_APP_API_URL);
+
 
   useEffect(() => {
     const fetchUserProfile = async () => {

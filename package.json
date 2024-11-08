@@ -1,7 +1,7 @@
 {
   "name": "pocket4cut",
   "version": "0.1.0",
-  "proxy": "https://port-0-pocket4cut-m0vc6i8ed9c19e71.sel4.cloudtype.app/",
+  "proxy": "https://port-0-pocket4cut-m0vc6i8ed9c19e71.sel4.cloudtype.app",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
@@ -9,8 +9,8 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "jwt-decode": "^4.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-kakao-maps-sdk": "^1.1.27",
     "react-modal": "^3.16.1",
     "react-qr-reader": "^3.0.0-beta-1",

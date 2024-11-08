@@ -48,6 +48,9 @@ function HomePage() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
     return R * c * 1000; // 결과를 meter 단위로 반환
   };
+  useEffect(() => {
+    console.log("로그인 상태:", isLoggedIn); // 로그인 상태를 확인하는 콘솔 로그
+  }, [isLoggedIn]);
 
   // 사용자 위치 가져오기
   useEffect(() => {
@@ -80,7 +83,7 @@ function HomePage() {
 
   const fetchLocations = async (latitude, longitude) => {
     try {
-      const response = await fetch(`/api/map?latitude=${latitude}&longitude=${longitude}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}api/map?latitude=${latitude}&longitude=${longitude}`);
       const data = await response.json();
 
       const newLocations = data.photobooths.map(booth => ({
@@ -100,11 +103,7 @@ function HomePage() {
   };
 
   const handleMarkerClick = (boothId, boothName, boothLat, boothLng) => {
-    console.log("클릭된 마커 ID:", boothId); // 클릭된 마커 ID 확인
-    console.log("클릭된 마커 Latitude:", boothLat); // 클릭된 마커 위도 확인
-    console.log("클릭된 마커 Longitude:", boothLng);
-    console.log("클릭된 마커 boothName:", boothName);
-  
+
     setClickedMarkerIndex(boothId); 
     setIsBottomSheetOpen(false);  // BottomSheet를 닫기 전에 잠깐 닫음
     setTimeout(() => {             // 100ms 후에 다시 열림
@@ -172,8 +171,15 @@ function HomePage() {
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  const requireLogin = () => {
-    if (!isLoggedIn) setIsModalOpen(true);
+  const requireLogin = (navigateTo) => {
+    if (!isLoggedIn) {
+      setIsModalOpen(true);
+    } else {
+      navigate(navigateTo);
+    }
+  };
+  const handleNavItemClick = (navigateTo) => {
+    requireLogin(navigateTo);
   };
 
   const handleAddPhotoClick = () => {
@@ -204,7 +210,7 @@ function HomePage() {
             const longitude = position.coords.longitude;
   
             try {
-              const response = await fetch(`/api/map?latitude=${latitude}&longitude=${longitude}`);
+              const response = await fetch(`${process.env.REACT_APP_API_URL}api/map?latitude=${latitude}&longitude=${longitude}`);
               const data = await response.json();
   
               setSearchResults(data.photobooths.map(booth => ({

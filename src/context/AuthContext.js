@@ -12,24 +12,24 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       setAccessToken(token);
-      decodeUserId(token); // 토큰이 있을 때 userId 디코딩
+      decodeUserId(token);
     }
   }, []);
 
   const decodeUserId = (token) => {
     try {
       const decoded = jwtDecode(token);
-      setUserId(decoded.id); // 디코딩한 id 값 설정
+      setUserId(decoded.id);
     } catch (error) {
       console.error("Invalid token:", error);
-      logout(); // 토큰이 유효하지 않을 때 로그아웃 처리
+      logout();
     }
   };
 
   const login = (token) => {
     localStorage.setItem('accessToken', token);
     setAccessToken(token);
-    decodeUserId(token); // 로그인 시 userId 디코딩
+    decodeUserId(token);
   };
 
   const logout = () => {
